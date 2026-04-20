@@ -3,15 +3,15 @@ nextflow.enable.dsl = 2
 /*
  * 1. Import Refactored Modules
  */
-include { PORECHOP_TRIM as PREPROCESS_ADAPTERS; SEQKIT_CLEAN } from './modules/preprocess.nf'
-include { CUTADAPT_MARK; BIOPYTHON_EXTRACT                 } from './modules/demux.nf'
-include { KRAKEN2_CLASSIFY; KRAKENTOOLS_EXTRACT             } from './modules/kraken2_filter.nf'
-include { AS_PRE_STATS; AMPLICON_SORTER; AS_DEDUPLICATE      } from './modules/amplicon_sorter.nf'
-include { OTU_COUNT_TABLE                                   } from './modules/otu_count.nf'
-include { OTU_MERGE                                         } from './modules/otu_merge.nf'
-include { BLAST_ANNOTATE                                    } from './modules/blast_annotate.nf'
-include { FINALIZE_RESULTS                                  } from './modules/finalize_results.nf'
-include { GENERATE_PROVENANCE                               } from './modules/generate_provenance.nf'
+include { PORECHOP_TRIM as PREPROCESS_ADAPTERS; SEQKIT_CLEAN } from './module/preprocess.nf'
+include { CUTADAPT_MARK; BIOPYTHON_EXTRACT                 } from './module/demux.nf'
+include { KRAKEN2_CLASSIFY; KRAKENTOOLS_EXTRACT             } from './module/kraken2_filter.nf'
+include { AS_PRE_STATS; AMPLICON_SORTER; AS_DEDUPLICATE      } from './module/amplicon_sorter.nf'
+include { OTU_COUNT_TABLE                                   } from './module/otu_count.nf'
+include { OTU_MERGE                                         } from './module/otu_merge.nf'
+include { BLAST_ANNOTATE                                    } from './module/blast_annotate.nf'
+include { FINALIZE_RESULTS                                  } from './module/finalize_results.nf'
+include { GENERATE_PROVENANCE                               } from './module/generate_provenance.nf'
 
 workflow {
 
