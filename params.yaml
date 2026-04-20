@@ -1,0 +1,26 @@
+# --- Input/Output Paths ---
+sample_sheet: "sampleSheet.csv"
+outdir: "results"
+
+# --- Database Paths ---
+kraken2_db: "/path/to/kraken2_db"
+blast_db_dir: "/path/to/blast_db"
+tax_db_dir: "/path/to/taxonomy"
+
+# --- Resource Limits (Max allowed on current server) ---
+max_cpus: 64
+max_memory: "256.GB"
+max_time: "24.h"
+
+# --- Analysis Parameters ---
+filter_taxids: "9606 10088"
+filter_action: "remove"
+max_reads: 10000
+blast_db_name: "nt"
+blast_type: "blastn"
+
+# Container paths (Local Singularity Images)
+as_container_path: "/abs/path/to/your/amplicon_sorter_v2.sif"
+
+# Scripts and other local files
+as_script_path: "/abs/path/to/your/scripts/amplicon_sorter.py"
