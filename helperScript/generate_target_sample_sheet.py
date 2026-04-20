@@ -132,20 +132,14 @@ def generate_data(start_num, end_num, selected_combos, base_row):
             full_sample_name = f"{barcode_name}_{combo['f_idx']}_{combo['r_idx']}"
 
             row = [
-                base_row["date"],
-                base_row["desc"],
-                full_sample_name,       # sample
-                base_row["flow_cell"],
-                base_row["kit"],
-                combo['f_idx'],         # iF
-                combo['r_idx'],         # iR
-                barcode_name,           # barcode
-                base_row["caller"],
+                full_sample_name,               # sample
                 base_row["path"],
                 base_row["min"],
                 base_row["max"],
-                base_row["maxreads"],
-                base_row["dummy"]
+                combo['f_idx'],                 # fwd_index
+                combo['fwd_primer'],
+                combo['r_idx'],                 # rev_index
+                combo['rev_primer']
             ]
             rows.append(row)
     return rows
@@ -162,11 +156,10 @@ def main(fastq_dir=None, output_csv=None):
     # Get barcode range from user (with auto-detection)
     start_num, end_num = get_barcode_range_from_user(fastq_dir)
 
-    # Header labels
+    # Header labels for pipeline-compatible sample sheet
     header = [
-        "#Date", "Project description", "sample", "flow cell", "lib kit",
-        "iF", "iR", "barcode", "fastq_base_caller", "fastq_passDir",
-        "min", "max", "maxreads", "DUMMY"
+        "sample", "fastq_dir", "min_len", "max_len",
+        "fwd_index", "fwd_primer", "rev_index", "rev_primer"
     ]
 
     # Fixed data - adjust as needed

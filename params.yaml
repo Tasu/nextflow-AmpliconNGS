@@ -1,11 +1,11 @@
 # --- Input/Output Paths ---
-sample_sheet: "samplesheet/samplesheet.csv"
+sample_sheet: "samplesheet/samplesheet_test_generated.csv"
 outdir: "results"
 
 # --- Database Paths ---
-kraken2_db: "/path/to/kraken2_db"
-blast_db_dir: "/path/to/blast_db"
-tax_db_dir: "/path/to/taxonomy"
+kraken2_db: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/kraken2db/kraken2custom18S"
+blast_db_dir: "/usr/local/db/blast/ncbi/nt"
+tax_db_dir: "/pigeon/tsugi/work/genome/ncbi-blast/taxdata/taxdump_2023"
 
 # --- Resource Limits (Max allowed on current server) ---
 max_cpus: 64
@@ -13,14 +13,15 @@ max_memory: "256.GB"
 max_time: "24.h"
 
 # --- Analysis Parameters ---
+# 7711 for chordata
+target_taxid: "7711"
 filter_action: "remove"
-target_taxid: "9606"
 max_reads: 10000
 blast_db_name: "nt"
 blast_type: "blastn"
 
 # Container paths (Local Singularity Images)
-as_container_path: "/path/to/your/sif/amplicon_sorter_v2.sif"
+as_container_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/sif/amplicon_sorter_v2.sif"
 
 # Scripts and other local files
-as_script_path: "/abs/path/to/your/scripts/amplicon_sorter.py"
+as_script_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/helperScript/amplicon_sorter.py"

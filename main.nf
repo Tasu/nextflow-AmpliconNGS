@@ -22,14 +22,14 @@ workflow {
         .splitCsv(header: true)
         .map { row ->
             def meta = [
-                sample_id:  row.sample,     // Updated to match your CSV column 'sample'
-                fastq_dir:  row.fastq_dir,
-                min_len:    row.min_len.toInteger(),
-                max_len:    row.max_len.toInteger(),
-                f_idx:      row.fwd_index ?: "",
-                f_prm:      row.fwd_primer,
-                r_idx:      row.rev_index ?: "",
-                r_prm:      row.rev_primer
+                sample_id:  row.sample ?: row.sample_id,
+                fastq_dir:  row.fastq_dir ?: row.data_dir ?: row.fastq_passDir ?: row.path,
+                min_len:    row.min_len ? row.min_len.toInteger() : (row.min ? row.min.toInteger() : 0),
+                max_len:    row.max_len ? row.max_len.toInteger() : (row.max ? row.max.toInteger() : 0),
+                f_idx:      row.fwd_index ?: row.iF ?: "",
+                f_prm:      row.fwd_primer ?: row.FwPrimer ?: "",
+                r_idx:      row.rev_index ?: row.iR ?: "",
+                r_prm:      row.rev_primer ?: row.RvPrimer ?: ""
             ]
             return meta
         }
