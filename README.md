@@ -65,6 +65,26 @@ Edit `params.yaml` to set paths and parameters for your environment:
 - **FastQ Files**: Place in directories specified in sample_sheet
 - **Databases**: Ensure Kraken2, BLAST, and taxonomy databases are accessible
 
+#### Helper Script for Sample Sheet
+
+Use the provided helper scripts to generate sample sheets:
+
+**For scanning existing FASTQ files:**
+```bash
+python helperScript/create_sample_sheet.py <fastq_directory> [output_csv]
+```
+
+**For generating target combinations:**
+```bash
+python helperScript/generate_target_sample_sheet.py
+```
+This will prompt for iF and iR index arrays and generate all combinations for the specified barcode range.
+
+Example:
+```bash
+python helperScript/create_sample_sheet.py demo/fastq samplesheet/samplesheet.csv
+```
+
 ## Usage
 
 Run the pipeline with Singularity profile:
