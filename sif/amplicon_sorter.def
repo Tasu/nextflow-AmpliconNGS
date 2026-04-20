@@ -1,0 +1,18 @@
+Bootstrap: docker
+From: python:3.9-slim
+
+%post
+    # Install system dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip install --no-cache-dir \
+        edlib \
+        biopython \
+        matplotlib \
+        numpy
+
+%runscript
+    exec python3 "$@"

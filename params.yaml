@@ -20,7 +20,7 @@ blast_db_name: "nt"
 blast_type: "blastn"
 
 # Container paths (Local Singularity Images)
-as_container_path: "/abs/path/to/your/amplicon_sorter_v2.sif"
+as_container_path: "/path/to/your/sif/amplicon_sorter_v2.sif"
 
 # Scripts and other local files
 as_script_path: "/abs/path/to/your/scripts/amplicon_sorter.py"
