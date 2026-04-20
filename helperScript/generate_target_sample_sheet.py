@@ -5,10 +5,17 @@ This version reads index/primer combinations from template file and generates
 sample sheets based on barcode ranges and selected index combinations.
 
 Usage:
-    python helperScript/generate_target_sample_sheet.py
+    python helperScript/generate_target_sample_sheet.py [fastq_directory]
 
-This will read the template file, prompt for index combinations, and generate
-a sample sheet with all combinations for the specified barcode range.
+Arguments:
+    fastq_directory: Path to FASTQ directory (default: demo/fastq)
+
+This will read the template file, auto-detect barcode range, prompt for index
+combinations, and generate a sample sheet with all combinations.
+
+Example:
+    python helperScript/generate_target_sample_sheet.py demo/fastq
+    python helperScript/generate_target_sample_sheet.py /path/to/fastq
 """
 
 import sys
@@ -141,10 +148,11 @@ def generate_data(start_num, end_num, selected_combos, base_row):
             rows.append(row)
     return rows
 
-def main():
+def main(fastq_dir=None):
     # Configuration
     template_file = "template/18SV4-9_index.tsv"
-    fastq_dir = "demo/fastq"
+    if fastq_dir is None:
+        fastq_dir = "demo/fastq"
     file_name = "samplesheet/sampleSheet.target.csv"
     delimiter = ","  # CSV delimiter
 
@@ -160,12 +168,12 @@ def main():
 
     # Fixed data - adjust as needed
     base_row = {
-        "date": "20260415_TS_ShikabetaMammal",
-        "desc": "shikabetaIndexed",
+        "date": "CHANGE_DATE_PROJECT",
+        "desc": "CHANGE_DESCRIPTION",
         "flow_cell": "FLO-FLG114",
         "kit": "SQK-NBD114.96",
         "caller": "8",
-        "path": "/home/tsugi/work/rawread/Nanopore/fastq/20260415_TS_ShikabetaMammal/basecalling/pass",
+        "path": fastq_dir,
         "min": "1000",
         "max": "1800",
         "maxreads": "10000",
@@ -219,4 +227,5 @@ def main():
         print(f"Error: {e}")
 
 if __name__ == "__main__":
-    main()
+    fastq_dir = sys.argv[1] if len(sys.argv) > 1 else "demo/fastq"
+    main(fastq_dir)
