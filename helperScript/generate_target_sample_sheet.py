@@ -13,6 +13,9 @@ a sample sheet with all combinations for the specified barcode range.
 
 import sys
 import csv
+import os
+import re
+import glob
 
 def load_template(template_file):
     """Load index/primer combinations from template TSV file."""
@@ -56,6 +59,56 @@ def select_combinations(combinations, selected_f, selected_r):
             selected_combos[sample_id] = combo
     return selected_combos
 
+def detect_barcode_range(fastq_dir):
+    """Detect barcode range from directory structure."""
+    barcode_pattern = re.compile(r'barcode(\d+)')
+    barcode_numbers = []
+
+    if not os.path.exists(fastq_dir):
+        return None, None
+
+    # Find all barcode** directories
+    for item in os.listdir(fastq_dir):
+        item_path = os.path.join(fastq_dir, item)
+        if os.path.isdir(item_path):
+            match = barcode_pattern.match(item)
+            if match:
+                barcode_numbers.append(int(match.group(1)))
+
+    if barcode_numbers:
+        return min(barcode_numbers), max(barcode_numbers)
+    return None, None
+
+def get_barcode_range_from_user(fastq_dir="demo/fastq"):
+    """Get barcode range from user with auto-detection as default."""
+    start_detected, end_detected = detect_barcode_range(fastq_dir)
+
+    if start_detected is not None and end_detected is not None:
+        print(f"\nDetected barcodes in {fastq_dir}: barcode{start_detected:02d} - barcode{end_detected:02d}")
+        default_str = f"{start_detected}-{end_detected}"
+        print(f"Enter barcode range [default: {default_str}] (e.g., 28-31):")
+        user_input = input().strip()
+        
+        if not user_input:
+            return start_detected, end_detected
+        
+        try:
+            parts = user_input.split('-')
+            return int(parts[0].strip()), int(parts[1].strip())
+        except (ValueError, IndexError):
+            print("Invalid input. Using detected range.")
+            return start_detected, end_detected
+    else:
+        print(f"No barcodes found in {fastq_dir}")
+        print("Enter barcode range (e.g., 28-31):")
+        user_input = input().strip()
+        try:
+            parts = user_input.split('-')
+            return int(parts[0].strip()), int(parts[1].strip())
+        except (ValueError, IndexError):
+            print("Invalid input.")
+            sys.exit(1)
+
 def generate_data(start_num, end_num, selected_combos, base_row):
     """Generate data rows for selected combinations."""
     rows = []
@@ -91,10 +144,12 @@ def generate_data(start_num, end_num, selected_combos, base_row):
 def main():
     # Configuration
     template_file = "template/18SV4-9_index.tsv"
+    fastq_dir = "demo/fastq"
     file_name = "samplesheet/sampleSheet.target.csv"
-    start_num = 28  # Start number
-    end_num = 31    # End number
     delimiter = ","  # CSV delimiter
+
+    # Get barcode range from user (with auto-detection)
+    start_num, end_num = get_barcode_range_from_user(fastq_dir)
 
     # Header labels
     header = [
