@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
  * 1. Import Refactored Modules
  */
 include { PORECHOP_TRIM as PREPROCESS_ADAPTERS; SEQKIT_CLEAN } from './modules/preprocess.nf'
-include { DEMULTIPLEX                                       } from './modules/demux.nf'
+include { CUTADAPT_MARK; BIOPYTHON_EXTRACT                 } from './modules/demux.nf'
 include { KRAKEN2_CLASSIFY; KRAKENTOOLS_EXTRACT             } from './modules/kraken2_filter.nf'
 include { AS_PRE_STATS; AMPLICON_SORTER; AS_DEDUPLICATE      } from './modules/amplicon_sorter.nf'
 include { OTU_COUNT_TABLE                                   } from './modules/otu_count.nf'
@@ -45,29 +45,35 @@ workflow {
     // [A] Pre-processing (Adapter trimming via Porechop)
     PREPROCESS_ADAPTERS(ch_for_preprocess)
 
-    // [B] Redistribute trimmed reads back to individual samples
+    // [B] Length Filtering (SeqKit Clean) - Remove reads marked by Porechop
+    SEQKIT_CLEAN(
+        PREPROCESS_ADAPTERS.out.round1_fastq,
+        PREPROCESS_ADAPTERS.out.log_round2
+    )
+
+    // [C] Redistribute trimmed reads back to individual samples
     ch_demux_input = ch_sample_sheet
         .map { meta -> [ meta.fastq_dir.split('/')[-1], meta ] }
-        .combine(PREPROCESS_ADAPTERS.out.chopped_fastq, by: 0)
+        .combine(SEQKIT_CLEAN.out.chopped_fastq, by: 0)
         .map { dir_id, meta, fastq ->
             [ meta.sample_id, fastq, meta.min_len, meta.max_len, meta.f_idx, meta.f_prm, meta.r_idx, meta.r_prm ]
         }
 
-    // [C] High-precision Demultiplexing
-    DEMULTIPLEX(ch_demux_input)
+    // [D] High-precision Demultiplexing - Cutadapt marking
+    CUTADAPT_MARK(ch_demux_input)
 
-    // Length Filtering (SeqKit Clean) - Using metadata from CSV via DEMULTIPLEX out
-    SEQKIT_CLEAN(DEMULTIPLEX.out.reads)
+    // [E] Extract sequences between primers with Biopython
+    BIOPYTHON_EXTRACT(CUTADAPT_MARK.out.marked_data)
 
-    // [D] Host Removal / Target Extraction (Kraken2 Filter Split)
+    // [F] Host Removal / Target Extraction (Kraken2 Filter Split)
     KRAKEN2_CLASSIFY(
-        SEQKIT_CLEAN.out.reads,
+        BIOPYTHON_EXTRACT.out.reads,
         params.kraken2_db
     )
     
     ch_for_extraction = KRAKEN2_CLASSIFY.out.output
         .join(KRAKEN2_CLASSIFY.out.report)
-        .join(SEQKIT_CLEAN.out.reads)
+        .join(BIOPYTHON_EXTRACT.out.reads)
 
     KRAKENTOOLS_EXTRACT(
         ch_for_extraction,
@@ -126,7 +132,8 @@ workflow {
     // Aggregate version info from all utilized containers
     ch_versions = PREPROCESS_ADAPTERS.out.versions
         .mix(SEQKIT_CLEAN.out.versions)
-        .mix(DEMULTIPLEX.out.versions)
+        .mix(CUTADAPT_MARK.out.versions)
+        .mix(BIOPYTHON_EXTRACT.out.versions)
         .mix(KRAKEN2_CLASSIFY.out.versions)
         .mix(KRAKENTOOLS_EXTRACT.out.versions)
         .mix(AS_PRE_STATS.out.versions)
