@@ -5,17 +5,19 @@ This version reads index/primer combinations from template file and generates
 sample sheets based on barcode ranges and selected index combinations.
 
 Usage:
-    python helperScript/generate_target_sample_sheet.py [fastq_directory]
+    python helperScript/generate_target_sample_sheet.py [fastq_directory] [output_csv]
 
 Arguments:
     fastq_directory: Path to FASTQ directory (default: demo/fastq)
+    output_csv: Path to output CSV file (default: samplesheet/sampleSheet.target.csv)
 
 This will read the template file, auto-detect barcode range, prompt for index
 combinations, and generate a sample sheet with all combinations.
 
-Example:
+Examples:
+    python helperScript/generate_target_sample_sheet.py
     python helperScript/generate_target_sample_sheet.py demo/fastq
-    python helperScript/generate_target_sample_sheet.py /path/to/fastq
+    python helperScript/generate_target_sample_sheet.py /path/to/fastq samplesheet/output.csv
 """
 
 import sys
@@ -148,12 +150,13 @@ def generate_data(start_num, end_num, selected_combos, base_row):
             rows.append(row)
     return rows
 
-def main(fastq_dir=None):
+def main(fastq_dir=None, output_csv=None):
     # Configuration
     template_file = "template/18SV4-9_index.tsv"
     if fastq_dir is None:
         fastq_dir = "demo/fastq"
-    file_name = "samplesheet/sampleSheet.target.csv"
+    if output_csv is None:
+        output_csv = "samplesheet/sampleSheet.target.csv"
     delimiter = ","  # CSV delimiter
 
     # Get barcode range from user (with auto-detection)
@@ -212,12 +215,12 @@ def main(fastq_dir=None):
 
     # Create output file
     try:
-        with open(file_name, mode='w', encoding='utf-8', newline='') as f:
+        with open(output_csv, mode='w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f, delimiter=delimiter)
             writer.writerow(header)
             writer.writerows(all_data)
 
-        print(f"\nSuccess: '{file_name}' created.")
+        print(f"\nSuccess: '{output_csv}' created.")
         print(f"Details: {len(all_data)} rows generated.")
         barcode_count = end_num - start_num + 1
         combo_count = len(selected_combos)
@@ -228,4 +231,5 @@ def main(fastq_dir=None):
 
 if __name__ == "__main__":
     fastq_dir = sys.argv[1] if len(sys.argv) > 1 else "demo/fastq"
-    main(fastq_dir)
+    output_csv = sys.argv[2] if len(sys.argv) > 2 else "samplesheet/sampleSheet.target.csv"
+    main(fastq_dir, output_csv)
