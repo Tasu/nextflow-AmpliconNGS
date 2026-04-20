@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: python:3.9-slim
+From: python:3.9.7-slim
 
 %post
     # Install system dependencies
@@ -7,12 +7,12 @@ From: python:3.9-slim
         build-essential \
         && rm -rf /var/lib/apt/lists/*
 
-    # Install Python packages
-    pip install --no-cache-dir \
-        edlib \
-        biopython \
-        matplotlib \
-        numpy
+    # Install Python packages with specific versions (Linux x86_64 binaries only)
+    pip install --no-cache-dir --only-binary all \
+        edlib==1.3.9 \
+        biopython==1.79 \
+        matplotlib==3.6.2 \
+        numpy==1.21.2
 
 %runscript
     exec python3 "$@"
