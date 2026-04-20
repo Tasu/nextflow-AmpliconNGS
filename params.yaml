@@ -13,8 +13,8 @@ max_memory: "256.GB"
 max_time: "24.h"
 
 # --- Analysis Parameters ---
-filter_taxids: "9606 10088"
 filter_action: "remove"
+target_taxid: "9606"
 max_reads: 10000
 blast_db_name: "nt"
 blast_type: "blastn"

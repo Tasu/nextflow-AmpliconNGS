@@ -54,7 +54,6 @@ Edit `params.yaml` to set paths and parameters for your environment:
 #### Other Parameters
 - `sample_sheet`: Path to sample sheet CSV (default: "sampleSheet.csv")
 - `outdir`: Output directory (default: "results")
-- `filter_taxids`: TaxIDs to filter out (default: "9606 10088")
 - `max_reads`: Maximum reads for clustering (default: 10000)
 - `blast_db_name`: BLAST database name (default: "nt")
 - `max_cpus`, `max_memory`, `max_time`: Resource limits
