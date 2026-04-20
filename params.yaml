@@ -1,5 +1,5 @@
 # --- Input/Output Paths ---
-sample_sheet: "sampleSheet.csv"
+sample_sheet: "samplesheet/samplesheet.csv"
 outdir: "results"
 
 # --- Database Paths ---
