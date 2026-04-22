@@ -4,6 +4,10 @@ Helper script to generate sample sheet CSV for Nextflow 18S Amplicon Pipeline.
 This version reads index/primer combinations from template file and generates
 sample sheets based on barcode ranges and selected index combinations.
 
+Requirement:
+    - Python 3
+    - pandas (for index sequence conversion)
+
 Usage:
     python helperScript/generate_target_sample_sheet.py [fastq_directory] [output_csv]
 
@@ -25,6 +29,10 @@ import csv
 import os
 import re
 import glob
+from io import StringIO
+from pathlib import Path
+import pandas as pd
+
 
 def load_template(template_file):
     """Load index/primer combinations from template TSV file."""
@@ -117,6 +125,49 @@ def get_barcode_range_from_user(fastq_dir="demo/fastq"):
         except (ValueError, IndexError):
             print("Invalid input.")
             sys.exit(1)
+def convert_indices_to_sequence(indices):
+    """Convert index names (e.g., F01) to actual sequences."""
+    # This is a placeholder function. You would replace this with actual logic
+    # to convert index names to sequences based on your specific requirements.
+    
+
+    script_dir = Path(__file__).parent
+    template_file = script_dir / "18SV4-9_index.tsv"
+    df = pd.read_csv(template_file, sep='\t')
+
+    index_sequences = {}
+
+    # 2. 各行を処理して辞書に登録していく
+    for _, row in df.iterrows():
+        # SampleID (例: 01_02) を "_" で分割
+        sample_parts = str(row['SampleID']).split('_')
+        if len(sample_parts) != 2:
+            continue
+            
+        f_num, r_num = sample_parts
+        
+        # F01, R02 のようなキー名を作成
+        f_key = f"F{f_num}"
+        r_key = f"R{r_num}"
+        
+        # まだ辞書になければ、配列（Index）を登録
+        if f_key not in index_sequences:
+            index_sequences[f_key] = row['FwIndex']
+        
+        if r_key not in index_sequences:
+            index_sequences[r_key] = row['RvIndex']
+
+
+    # index_sequences = {
+    #     "F01": "ACGT",
+    #     "F02": "TGCA",
+    #     "R01": "GCTA",
+    #     "R02": "CAGT",
+    #     # Add more mappings as needed
+    # }
+    return [index_sequences.get(idx, "UNKNOWN") for idx in indices]
+
+
 
 def generate_data(start_num, end_num, selected_combos, base_row):
     """Generate data rows for selected combinations."""
@@ -130,15 +181,15 @@ def generate_data(start_num, end_num, selected_combos, base_row):
         for sample_id, combo in selected_combos.items():
             # sample name as barcode_Fxx_Rxx
             full_sample_name = f"{barcode_name}_{combo['f_idx']}_{combo['r_idx']}"
-
+            f_index_seq, r_index_seq = convert_indices_to_sequence([combo['f_idx'], combo['r_idx']])
             row = [
                 full_sample_name,               # sample
-                base_row["path"],
+                base_row["path"] + "/" + barcode_name,  # fastq_dir
                 base_row["min"],
                 base_row["max"],
-                combo['f_idx'],                 # fwd_index
+                f_index_seq,                 # fwd_index
                 combo['fwd_primer'],
-                combo['r_idx'],                 # rev_index
+                r_index_seq,                 # rev_index
                 combo['rev_primer']
             ]
             rows.append(row)
@@ -146,7 +197,8 @@ def generate_data(start_num, end_num, selected_combos, base_row):
 
 def main(fastq_dir=None, output_csv=None):
     # Configuration
-    template_file = "template/18SV4-9_index.tsv"
+    script_dir = Path(__file__).parent
+    template_file = script_dir / "18SV4-9_index.tsv"
     if fastq_dir is None:
         fastq_dir = "demo/fastq"
     if output_csv is None:
@@ -208,19 +260,23 @@ def main(fastq_dir=None, output_csv=None):
 
     # Create output file
     try:
-        with open(output_csv, mode='w', encoding='utf-8', newline='') as f:
+        # パスが "-" なら sys.stdout を使い、それ以外なら open でファイルを開く
+        with (sys.stdout if output_csv == "-" else open(output_csv, mode='w', encoding='utf-8', newline='')) as f:
             writer = csv.writer(f, delimiter=delimiter)
             writer.writerow(header)
             writer.writerows(all_data)
 
-        print(f"\nSuccess: '{output_csv}' created.")
-        print(f"Details: {len(all_data)} rows generated.")
-        barcode_count = end_num - start_num + 1
-        combo_count = len(selected_combos)
-        print(f"(Barcodes {start_num}-{end_num}: {barcode_count} × {combo_count} combinations = {barcode_count * combo_count} total)")
+        # 標準出力（画面）にデータを出した場合は、以下のメッセージを表示させないか、stderrに出す
+        if output_csv != "-":
+            print(f"\nSuccess: '{output_csv}' created.")
+            print(f"Details: {len(all_data)} rows generated.")
+            # ...その他のメッセージ...
+        else:
+            # 画面にデータを出した場合でも、詳細をログとして出したいなら stderr を使う
+            print(f"Details: {len(all_data)} rows generated.", file=sys.stderr)
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}", file=sys.stderr)
 
 if __name__ == "__main__":
     fastq_dir = sys.argv[1] if len(sys.argv) > 1 else "demo/fastq"
