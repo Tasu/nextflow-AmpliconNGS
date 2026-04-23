@@ -10,6 +10,7 @@ This Nextflow pipeline performs comprehensive analysis of 18S amplicon sequencin
 - OTU clustering with custom amplicon_sorter
 - BLAST annotation for taxonomic assignment
 - Final result summarization
+- Robust FASTQ input handling when identical FASTQ file names exist in different barcode directories
 
 ## Prerequisites
 
@@ -61,7 +62,7 @@ Edit `params.yaml` to set paths and parameters for your environment:
 ### 4. Prepare Input Files
 
 - **Sample Sheet**: CSV file with columns: sample, fastq_dir, min_len, max_len, fwd_index, fwd_primer, rev_index, rev_primer
-- **FastQ Files**: Place in directories specified in sample_sheet
+- **FastQ Files**: Place in directories specified in sample_sheet. The pipeline preprocesses each `fastq_dir` once and deduplicates staged inputs by full file path, so identical FASTQ basenames across different directories are supported.
 - **Databases**: Ensure Kraken2, BLAST, and taxonomy databases are accessible
 
 #### Helper Script for Sample Sheet

@@ -17,7 +17,7 @@ workflow {
 
     // --- 2. Input Channel Creation ---
     
-    // Parse sampleSheet.csv and create a metadata map for each sample
+    // Parse sample sheet and create a metadata map for each sample row
     ch_sample_sheet = Channel.fromPath(params.sample_sheet)
         .splitCsv(header: true)
         .map { row ->
@@ -34,11 +34,17 @@ workflow {
             return meta
         }
 
-    // Grouping by fastq_dir to run PREPROCESS only once per directory
+    // Group by fastq_dir so PREPROCESS runs once per directory.
+    // Deduplicate by full path to avoid staging collisions when sample-sheet rows
+    // reference the same directory and FASTQ basenames are repeated.
     ch_for_preprocess = ch_sample_sheet
         .map { meta -> [ meta.fastq_dir, file("${meta.fastq_dir}/*.{fastq,fastq.gz,fq,fq.gz}") ] }
         .groupTuple()
-        .map { dir, files -> [ dir.split('/')[-1], files.flatten() ] }
+        .map { dir, files ->
+            def dir_id = dir.split('/')[-1]
+            def unique_fastq_files = files.flatten().unique { it.toString() }
+            [ dir_id, unique_fastq_files ]
+        }
 
     // --- 3. Parallel Processing Phase (Per-Directory / Per-Sample) ---
 
