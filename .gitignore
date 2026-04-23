@@ -1,0 +1,12 @@
+# ignore the script which should be retrieved from public github repository
+helperScript/amplicon_sorter.py
+
+# ignore the sif container which should be build by singularity
+sif/amplicon_sorter_v2.sif
+
+# ignore test script
+testContainer.sh
+version.ipynb
+
+# ignore test samplesheet
+samplesheet/*.csv
