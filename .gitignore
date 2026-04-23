@@ -10,3 +10,6 @@ version.ipynb
 
 # ignore test samplesheet
 samplesheet/*.csv
+
+# ignore run directory
+run/
