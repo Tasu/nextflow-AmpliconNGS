@@ -1,5 +1,6 @@
 #################for onpremise server, 128cpu, 64GB memeory, DB available#################
 # --- Input/Output Paths ---
+# this path is the relative path from the directory which nextflow command is executed.
 sample_sheet: "samplesheet/samplesheet_test_generated.csv"
 outdir: "results"
 
