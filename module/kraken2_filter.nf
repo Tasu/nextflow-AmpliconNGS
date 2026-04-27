@@ -33,7 +33,7 @@ process KRAKEN2_CLASSIFY {
         input_reads=\$(awk 'END{print int(NR/4)}' "${fastq}")
     fi
 
-    if [[ "${input_reads}" -eq 0 ]]; then
+    if [[ "\${input_reads}" -eq 0 ]]; then
         : > ${sample_id}.kraken2.out
         printf "0.00\t0\t0\tU\t0\tunclassified\n" > ${sample_id}.kraken2.report
     else
@@ -74,7 +74,7 @@ process KRAKENTOOLS_EXTRACT {
     # Count classified reads directly from kraken2 output.
     classified_reads=\$(awk 'BEGIN{c=0} /^C\t/{c++} END{print c+0}' ${kraken_out})
 
-    if [[ "${classified_reads}" -eq 0 ]]; then
+    if [[ "\${classified_reads}" -eq 0 ]]; then
         : > ${sample_id}_filtered.fastq
     else
         # Extract specific reads matching the TaxID and its children

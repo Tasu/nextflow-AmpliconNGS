@@ -27,10 +27,10 @@ process AS_PRE_STATS {
         echo 0 > read_count_actual.txt
     else
         read_count=\$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print \$4}')
-        if [[ -z "${read_count}" ]]; then
+        if [[ -z "\${read_count}" ]]; then
             echo 0 > read_count_actual.txt
         else
-            echo "${read_count}" > read_count_actual.txt
+            echo "\${read_count}" > read_count_actual.txt
         fi
     fi
     
@@ -68,7 +68,7 @@ process AMPLICON_SORTER {
     fi
 
     mkdir -p out_dir
-    if [[ "${input_reads}" -eq 0 ]]; then
+    if [[ "\${input_reads}" -eq 0 ]]; then
         touch out_dir/${sample_id}_empty_consensussequences.fasta
         printf "No reads available for clustering (sample=%s)\n" "${sample_id}" > out_dir/results.txt
     else
@@ -113,7 +113,7 @@ process AS_DEDUPLICATE {
         fi
     done
 
-    if [[ "${has_content}" -eq 1 ]]; then
+    if [[ "\${has_content}" -eq 1 ]]; then
         cat ${raw_fastas} > merged_tmp.fasta
         seqkit rmdup -s merged_tmp.fasta -o ${sample_id}_clustered_consensus.fasta
     else
