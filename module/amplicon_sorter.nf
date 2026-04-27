@@ -26,7 +26,7 @@ process AS_PRE_STATS {
     if [[ ! -s "${reads}" ]]; then
         echo 0 > read_count_actual.txt
     else
-        read_count=\$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print $4}')
+        read_count=\$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print \$4}')
         if [[ -z "${read_count}" ]]; then
             echo 0 > read_count_actual.txt
         else
