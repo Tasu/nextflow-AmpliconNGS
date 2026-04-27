@@ -26,7 +26,7 @@ process AS_PRE_STATS {
     if [[ ! -s "${reads}" ]]; then
         echo 0 > read_count_actual.txt
     else
-        read_count=$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print $4}')
+        read_count=\$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print $4}')
         if [[ -z "${read_count}" ]]; then
             echo 0 > read_count_actual.txt
         else
@@ -62,9 +62,9 @@ process AMPLICON_SORTER {
     """
     # Skip clustering when there are zero reads and emit empty placeholders.
     if [[ "${reads}" == *.gz ]]; then
-        input_reads=$(gzip -cd "${reads}" | awk 'END{print int(NR/4)}')
+        input_reads=\$(gzip -cd "${reads}" | awk 'END{print int(NR/4)}')
     else
-        input_reads=$(awk 'END{print int(NR/4)}' "${reads}")
+        input_reads=\$(awk 'END{print int(NR/4)}' "${reads}")
     fi
 
     mkdir -p out_dir

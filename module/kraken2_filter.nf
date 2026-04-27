@@ -28,9 +28,9 @@ process KRAKEN2_CLASSIFY {
     """
     # Skip Kraken2 when the input FASTQ has zero reads.
     if [[ "${fastq}" == *.gz ]]; then
-        input_reads=$(gzip -cd "${fastq}" | awk 'END{print int(NR/4)}')
+        input_reads=\$(gzip -cd "${fastq}" | awk 'END{print int(NR/4)}')
     else
-        input_reads=$(awk 'END{print int(NR/4)}' "${fastq}")
+        input_reads=\$(awk 'END{print int(NR/4)}' "${fastq}")
     fi
 
     if [[ "${input_reads}" -eq 0 ]]; then
@@ -72,7 +72,7 @@ process KRAKENTOOLS_EXTRACT {
     script:
     """
     # Count classified reads directly from kraken2 output.
-    classified_reads=$(awk 'BEGIN{c=0} /^C\t/{c++} END{print c+0}' ${kraken_out})
+    classified_reads=\$(awk 'BEGIN{c=0} /^C\t/{c++} END{print c+0}' ${kraken_out})
 
     if [[ "${classified_reads}" -eq 0 ]]; then
         : > ${sample_id}_filtered.fastq
