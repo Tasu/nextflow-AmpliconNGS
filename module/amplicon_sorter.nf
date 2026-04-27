@@ -22,8 +22,17 @@ process AS_PRE_STATS {
 
     script:
     """
-    # Count actual reads (denominator for downstream analysis)
-    seqkit stats -T ${reads} | tail -n 1 | awk '{print \$4}' > read_count_actual.txt
+    # Count actual reads (denominator for downstream analysis) with a safe zero fallback.
+    if [[ ! -s "${reads}" ]]; then
+        echo 0 > read_count_actual.txt
+    else
+        read_count=$(seqkit stats -T "${reads}" 2>/dev/null | awk 'NR==2 {print $4}')
+        if [[ -z "${read_count}" ]]; then
+            echo 0 > read_count_actual.txt
+        else
+            echo "${read_count}" > read_count_actual.txt
+        fi
+    fi
     
     echo "SeqKit (AS_PRE): \$(seqkit version | awk '{print \$2}')" > versions_as_pre.yml
     """
@@ -51,13 +60,26 @@ process AMPLICON_SORTER {
 
     script:
     """
-    # Execute the local clustering script
-    python3 ${as_script} \\
-        -i ${reads} \\
-        -n ${max_reads} \\
-        -min ${min_len} \\
-        -max ${max_len} \\
-        -o out_dir
+    # Skip clustering when there are zero reads and emit empty placeholders.
+    if [[ "${reads}" == *.gz ]]; then
+        input_reads=$(gzip -cd "${reads}" | awk 'END{print int(NR/4)}')
+    else
+        input_reads=$(awk 'END{print int(NR/4)}' "${reads}")
+    fi
+
+    mkdir -p out_dir
+    if [[ "${input_reads}" -eq 0 ]]; then
+        touch out_dir/${sample_id}_empty_consensussequences.fasta
+        printf "No reads available for clustering (sample=%s)\n" "${sample_id}" > out_dir/results.txt
+    else
+        # Execute the local clustering script
+        python3 ${as_script} \\
+            -i ${reads} \\
+            -n ${max_reads} \\
+            -min ${min_len} \\
+            -max ${max_len} \\
+            -o out_dir
+    fi
 
     echo "Amplicon_Sorter_Script: 2025-10-09 (Local)" > versions_as_main.yml
     """
@@ -81,8 +103,17 @@ process AS_DEDUPLICATE {
 
     script:
     """
-    # Merge all cluster consensus files and remove exact duplicates
-    if [ -n "${raw_fastas}" ]; then
+    # Merge all cluster consensus files and remove exact duplicates.
+    # If all inputs are empty, create an empty consensus file for downstream zero-count handling.
+    has_content=0
+    for f in ${raw_fastas}; do
+        if [[ -s "$f" ]]; then
+            has_content=1
+            break
+        fi
+    done
+
+    if [[ "${has_content}" -eq 1 ]]; then
         cat ${raw_fastas} > merged_tmp.fasta
         seqkit rmdup -s merged_tmp.fasta -o ${sample_id}_clustered_consensus.fasta
     else
