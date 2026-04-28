@@ -106,7 +106,7 @@ process AS_DEDUPLICATE {
     # Merge all cluster consensus files and remove exact duplicates.
     # If all inputs are empty, create an empty consensus file for downstream zero-count handling.
     has_content=0
-    for f in \${raw_fastas}; do
+    for f in ${raw_fastas}; do
         if [[ -s "\$f" ]]; then
             has_content=1
             break
@@ -114,7 +114,7 @@ process AS_DEDUPLICATE {
     done
 
     if [[ "\${has_content}" -eq 1 ]]; then
-        cat \${raw_fastas} > merged_tmp.fasta
+        cat ${raw_fastas} > merged_tmp.fasta
         seqkit rmdup -s merged_tmp.fasta -o ${sample_id}_clustered_consensus.fasta
     else
         touch ${sample_id}_clustered_consensus.fasta

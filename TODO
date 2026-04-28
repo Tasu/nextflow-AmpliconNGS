@@ -1,3 +1,70 @@
 ## TODO
 
- 
+### BUG FIX
+- Status: fixed in `module/amplicon_sorter.nf` (`AS_DEDUPLICATE`).
+- Root cause: `\${raw_fastas}` was escaped in the script block, so Bash (with `-u`) treated `raw_fastas` as an unbound shell variable.
+- Fix: use `${raw_fastas}` so Nextflow interpolates the staged input FASTA paths before execution.
+
+- Error code
+```
+Error executing process > 'AS_DEDUPLICATE (barcode31_F02_R01)'
+
+Caused by:
+  Process `AS_DEDUPLICATE (barcode31_F02_R01)` terminated with an error exit status (1)
+
+Command executed:
+
+  # Merge all cluster consensus files and remove exact duplicates.
+  # If all inputs are empty, create an empty consensus file for downstream zero-count handling.
+  has_content=0
+  for f in ${raw_fastas}; do
+      if [[ -s "$f" ]]; then
+          has_content=1
+          break
+      fi
+  done
+  
+  if [[ "${has_content}" -eq 1 ]]; then
+      cat ${raw_fastas} > merged_tmp.fasta
+      seqkit rmdup -s merged_tmp.fasta -o barcode31_F02_R01_clustered_consensus.fasta
+  else
+      touch barcode31_F02_R01_clustered_consensus.fasta
+  fi
+  
+  echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post.yml
+
+Command exit status:
+  1
+
+Command output:
+  (empty)
+
+Command error:
+  INFO:    Converting SIF file to temporary sandbox...
+  .command.sh: line 5: raw_fastas: unbound variable
+  INFO:    Cleaning up image...
+```
+
+- content of executed .command.sh
+```
+#!/bin/bash -ue
+# Merge all cluster consensus files and remove exact duplicates.
+# If all inputs are empty, create an empty consensus file for downstream zero-count handling.
+has_content=0
+for f in ${raw_fastas}; do
+    if [[ -s "$f" ]]; then
+        has_content=1
+        break
+    fi
+done
+
+if [[ "${has_content}" -eq 1 ]]; then
+    cat ${raw_fastas} > merged_tmp.fasta
+    seqkit rmdup -s merged_tmp.fasta -o barcode31_F02_R01_clustered_consensus.fasta
+else
+    touch barcode31_F02_R01_clustered_consensus.fasta
+fi
+
+echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post.yml
+
+```
