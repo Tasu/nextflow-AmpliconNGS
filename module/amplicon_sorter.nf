@@ -107,7 +107,7 @@ process AS_DEDUPLICATE {
     # If all inputs are empty, create an empty consensus file for downstream zero-count handling.
     has_content=0
     for f in \${raw_fastas}; do
-        if [[ -s "$f" ]]; then
+        if [[ -s "\$f" ]]; then
             has_content=1
             break
         fi
