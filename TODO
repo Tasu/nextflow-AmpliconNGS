@@ -1,5 +1,32 @@
 ## TODO
 
+### BUG FIX
+- report date: Apr-29-2026
+- Status: done (Apr-29-2026)
+- status update date: Apr-29-2026
+- Root cause: `GENERATE_PROVENANCE` staged a collected list of `versions_*.yml` files with duplicate basenames into one work directory, causing Nextflow input filename collisions.
+- Fix: set `stageAs: 'versions??/*'` on `v_files` input in `module/generate_provenance.nf` so each file is staged in a separate numbered subdirectory and collisions are avoided.
+- error code:
+```
+Error executing process > 'GENERATE_PROVENANCE'
+
+Caused by:
+  Process `GENERATE_PROVENANCE` input file name collision -- There are multiple input files for each of the following file names: versions_cutadapt.yml, versions_otu_count.yml, versions_porechop.yml, versions_seqkit.yml, versions_biopython.yml, versions_krakentools.yml, versions_kraken2.yml, versions_as_main.yml, versions_as_post.yml, versions_as_pre.yml
+  
+```
+
+### FEATURE ADDITION
+- report date:Apr-29-2026
+- Status: planned
+- Summary: Improve container image maintenance workflow to reduce breakage from changing tags
+- Scope:
+  - Centralize container reference URLs in a single config source (instead of per-module literals)
+  - Add a connectivity check step that validates all configured image URLs before workflow execution
+  - Add candidate tag suggestions when a configured container pull fails (for faster manual fix)
+- Notes:
+  - Prefer semi-automated verification over blind bulk replacement
+  - Keep `https://depot.galaxyproject.org/singularity/...` style for Singularity pulls
+
 ### FEATURE ADDITION
 - Status: done
 - Summary: Added error handling for zero or partial BLAST hits, and NA taxonomy assignment for unmatched OTUs

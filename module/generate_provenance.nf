@@ -15,7 +15,9 @@ process GENERATE_PROVENANCE {
     container 'https://depot.galaxyproject.org/singularity/biopython:1.79'
 
     input:
-    path v_files // List of all version files (versions_*.yml) collected via .collect()
+    // Stage each collected version file into a separate numbered subdirectory
+    // to avoid filename collisions (e.g., multiple versions_seqkit.yml).
+    path v_files, stageAs: 'versions??/*'
     val workflow_info // workflow object from main.nf
 
     output:
