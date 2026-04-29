@@ -41,7 +41,7 @@ process TAXONKIT_LINEAGE {
 
 process BIOM_GENERATE {
     label 'process_medium'
-    publishDir "${params.outdir}/01_Final_Outputs", mode: 'copy'
+    publishDir "${params.outdir}/06_biom", mode: 'copy'
     container 'https://depot.galaxyproject.org/singularity/biom-format:2.1.15'
     // Note: Biom-format image should include pandas. If not, quay.io/biocontainers/pandas:2.2.1 can be used with a combined script.
 
@@ -53,6 +53,7 @@ process BIOM_GENERATE {
     output:
     path "merged_results.biom",   emit: biom
     path "merged_otu_report.tsv", emit: tsv_report
+    path "versions_biom.yml",     emit: versions
 
     script:
     """
@@ -141,5 +142,7 @@ with open("merged_results.biom", 'w') as bf:
     json.dump(biom, bf)
 
 EOF
+
+    echo "BIOM-format: 2.1.15, Pandas: \$(python3 -c 'import pandas; print(pandas.__version__)')" > versions_biom.yml
     """
 }

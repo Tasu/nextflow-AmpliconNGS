@@ -57,7 +57,7 @@ process KRAKEN2_CLASSIFY {
 process KRAKENTOOLS_EXTRACT {
     tag "${sample_id}"
     label 'process_medium'
-    publishDir "${params.outdir}/04_kraken_filter/${sample_id}", mode: 'copy'
+    publishDir "${params.outdir}/02_kraken_filter/${sample_id}", mode: 'copy'
     // Using verified stable URI from Docker Hub (Nanozoo)
     container 'docker://nanozoo/krakentools:1.2--13d5ba5'
 

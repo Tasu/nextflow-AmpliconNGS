@@ -10,6 +10,8 @@ include { AS_PRE_STATS; AMPLICON_SORTER; AS_DEDUPLICATE      } from './module/am
 include { OTU_COUNT_TABLE                                   } from './module/otu_count.nf'
 include { OTU_MERGE                                         } from './module/otu_merge.nf'
 include { BLAST_ANNOTATE                                    } from './module/blast_annotate.nf'
+include { TAXONKIT_LINEAGE; BIOM_GENERATE                   } from './module/create_biom.nf'
+include { SUMMARY_REPORT                                    } from './module/summary_report.nf'
 include { FINALIZE_RESULTS                                  } from './module/finalize_results.nf'
 include { GENERATE_PROVENANCE                               } from './module/generate_provenance.nf'
 
@@ -127,7 +129,29 @@ workflow {
 
     // --- 5. Result Finalization & Provenance ---
 
-    // Organize final results
+    // [I] Taxonomic Lineage Extraction from BLAST results (TaxonKit)
+    TAXONKIT_LINEAGE(
+        BLAST_ANNOTATE.out.blast_results,
+        params.tax_db_dir
+    )
+
+    // [J] BIOM Format Generation (OTU counts + taxonomic lineage)
+    BIOM_GENERATE(
+        OTU_MERGE.out.count_matrix,
+        TAXONKIT_LINEAGE.out.lineage,
+        BLAST_ANNOTATE.out.blast_results
+    )
+
+    // [K] Summary Report Generation (Phylum-level aggregation)
+    ch_kraken_reports = KRAKEN2_CLASSIFY.out.report.map { it[1] }.collect()
+    
+    SUMMARY_REPORT(
+        ch_kraken_reports,
+        OTU_MERGE.out.count_matrix,
+        BLAST_ANNOTATE.out.blast_results
+    )
+
+    // [L] Organize final results
     FINALIZE_RESULTS(
         OTU_MERGE.out.count_matrix,
         OTU_MERGE.out.otu_fasta,
@@ -148,6 +172,9 @@ workflow {
         .mix(OTU_COUNT_TABLE.out.versions)
         .mix(OTU_MERGE.out.versions)
         .mix(BLAST_ANNOTATE.out.versions)
+        .mix(TAXONKIT_LINEAGE.out.versions)
+        .mix(BIOM_GENERATE.out.versions)
+        .mix(SUMMARY_REPORT.out.versions)
         .collect()
 
     GENERATE_PROVENANCE(ch_versions, workflow)

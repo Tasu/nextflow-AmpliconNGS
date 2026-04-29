@@ -9,7 +9,7 @@
 
 process GENERATE_PROVENANCE {
     label 'process_low'
-    publishDir "${params.outdir}/00_provenance", mode: 'copy'
+    publishDir "${params.outdir}/99_provenance", mode: 'copy'
 
     // Using the verified Biopython container (Python 3.11 based)
     container 'https://depot.galaxyproject.org/singularity/biopython:1.79'

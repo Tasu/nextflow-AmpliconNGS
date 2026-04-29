@@ -9,7 +9,7 @@
 
 process SUMMARY_REPORT {
     label 'process_medium'
-    publishDir "${params.outdir}/05_report", mode: 'copy'
+    publishDir "${params.outdir}/07_summary_report", mode: 'copy'
 
     // Using the consistent Python 3.11 based container
     container 'https://depot.galaxyproject.org/singularity/biopython:1.79'

@@ -6,7 +6,7 @@
  */
 process BLAST_ANNOTATE {
     label 'process_high'
-    publishDir "${params.outdir}/05_annotation", mode: 'copy'
+    publishDir "${params.outdir}/05_blast_annotation", mode: 'copy'
 
     // Updated to the verified stable URI
     container 'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4'
