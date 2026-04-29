@@ -85,18 +85,28 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 ## FEATURE ADDITION
 
 ### [FEAT-002] Container image maintenance workflow
-- Report date: 2026-04-29
-- Status: planned
-- Status update date: N/A
-- Summary: improve container image maintenance to reduce breakage from changing tags.
-- Scope:
   - Centralize container reference URLs in one config source.
   - Add pre-run connectivity checks for configured image URLs.
   - Add candidate tag suggestions when container pull fails.
 - Notes:
-  - Prefer semi-automated verification over blind bulk replacement.
   - Keep `https://depot.galaxyproject.org/singularity/...` style for Singularity pulls.
 
+
+## INFRASTRUCTURE / CLEANUP
+
+### [INFRA-001] Prepare trash/ and .gitignore for public release
+- Report date: 2026-04-29
+- Status: planned
+- Status update date: N/A
+- Summary: maintain trash/ folder for development work without committing it to public repository.
+- Scope:
+  - `trash/` directory created to store obsolete files (e.g., `nextflowPipelineGenerationLog.md`).
+  - Files moved to `trash/` are tracked in git during development.
+  - Before converting private → public repo, add `trash/` to `.gitignore`.
+  - Add other development artifacts (e.g., `testContainer.sh` if only for dev testing, `.nextflow/` working dirs).
+- Files currently in trash/:
+  - `nextflowPipelineGenerationLog.md` (superseded by README + TODO)
+- Next step: Add entry to `.gitignore` when approaching public release.
 ### [FEAT-001] Zero/partial BLAST-hit handling and NA taxonomy fallback
 - Report date: N/A
 - Status: done
