@@ -14,7 +14,7 @@ This Nextflow pipeline performs comprehensive analysis of 18S amplicon sequencin
 
 ## Prerequisites
 
-- tested in following env.
+- Tested with the following software:
 - Nextflow (version 22.04.0)
 - Singularity (version 3.8.6)
 - Linux environment with sufficient computational resources (64 cores+, 32GB+ memory)
@@ -50,13 +50,19 @@ Edit `params.yaml` to set paths and parameters for your environment:
 
 #### Container and Script Paths
 - `as_container_path`: Path to the built Singularity container (e.g., `/absolute/path/to/sif/amplicon_sorter_v2.sif`)
-- `as_script_path`: Path to the amplicon_sorter.py script (e.g., `/path/to/scripts/amplicon_sorter.py`)
+- `as_script_path`: Path to the local `amplicon_sorter.py` script
+
+`amplicon_sorter.py` source repository:
+- https://github.com/avierstr/amplicon_sorter
 
 #### Other Parameters
-- `sample_sheet`: Path to sample sheet CSV (default: "sampleSheet.csv")
-- `outdir`: Output directory (default: "results")
-- `max_reads`: Maximum reads for clustering (default: 10000)
-- `blast_db_name`: BLAST database name (default: "nt")
+- `sample_sheet`: Path to sample sheet CSV (default in repo: `samplesheet/samplesheet_test_generated.csv`)
+- `outdir`: Output directory (default: `results`)
+- `target_taxid`: TaxID used in KrakenTools extraction (example: `7711`)
+- `filter_action`: Read filtering mode for target taxonomy (example: `remove`)
+- `max_reads`: Maximum reads for clustering (default: `10000`)
+- `blast_db_name`: BLAST database name (default: `nt`)
+- `blast_type`: BLAST algorithm (default: `blastn`)
 - `max_cpus`, `max_memory`, `max_time`: Resource limits
 
 ### 4. Prepare Input Files
@@ -67,23 +73,13 @@ Edit `params.yaml` to set paths and parameters for your environment:
 
 #### Helper Script for Sample Sheet
 
-Use the provided helper scripts to generate sample sheets:
+Use the provided helper script to generate sample sheets:
 
-**For scanning existing FASTQ files:**
-```bash
-python helperScript/create_sample_sheet.py <fastq_directory> [output_csv]
-```
-
-**For generating target combinations from template:**
+**To generate target combinations from a template:**
 ```bash
 python helperScript/generate_target_sample_sheet.py
 ```
 This reads index/primer combinations from `template/18SV4-9_index.tsv` and prompts for F/R index selections to generate all combinations for the specified barcode range.
-
-Example:
-```bash
-python helperScript/create_sample_sheet.py demo/fastq samplesheet/samplesheet.csv
-```
 
 ## Usage
 
@@ -93,9 +89,34 @@ Run the pipeline with Singularity profile:
 nextflow run main.nf -profile singularity -params-file params.yaml
 ```
 
+### Recommended Run Layout (per analysis)
+
+For reproducibility and easier cleanup, keep each run in its own analysis directory:
+- `analysisDir/work`: Nextflow work directory
+- `analysisDir/results`: published outputs (`params.outdir` target)
+
+Example:
+
+```bash
+analysisDir="./analysis/run01"
+analysisDir="$(realpath -m "$analysisDir")"
+mkdir -p "$analysisDir/work" "$analysisDir/results"
+
+nextflow run /path/to/nextflow-18SAmplicon/main.nf \
+    -profile singularity \
+    -params-file /path/to/nextflow-18SAmplicon/params.yaml \
+    -work-dir "$analysisDir/work" \
+    --outdir "$analysisDir/results"
+```
+
+Notes:
+- `--outdir` overrides `outdir` in `params.yaml`.
+- `-work-dir` controls where Nextflow stores task working files and cache.
+- This pattern works whether `analysisDir` is specified as a relative path (from launch directory) or an absolute path.
+
 ### Singularity Configuration
 
-If simlinked directory is used for data, or current directory, please make sure to mount the destination directry. i.e. The pipeline automatically binds the network-mounted drive `/pigeon:/pigeon` for all Singularity containers. This ensures access to shared resources on your server.
+If a symlinked or current directory is used for data, ensure it is mounted. The pipeline automatically binds the network-mounted drive `/pigeon:/pigeon` for all Singularity containers. This ensures access to shared resources on your server.
 
 If you need additional bind mounts, modify `nextflow.config`:
 
