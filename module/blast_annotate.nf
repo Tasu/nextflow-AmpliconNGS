@@ -9,7 +9,7 @@ process BLAST_ANNOTATE {
     publishDir "${params.outdir}/05_annotation", mode: 'copy'
 
     // Updated to the verified stable URI
-    container 'https://depot.galaxyproject.org/singularity/blast:2.16.0'
+    container 'https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4'
 
     input:
     path unique_otus_fasta  // Integrated FASTA file from OTU_MERGE

@@ -13,7 +13,7 @@ process KRAKEN2_CLASSIFY {
     tag "${sample_id}"
     label 'process_high'
     // Using verified stable URI from Galaxy Depot
-    container 'https://depot.galaxyproject.org/singularity/kraken2:2.1.3'
+    container 'https://depot.galaxyproject.org/singularity/kraken2:2.1.3--pl5321h077b44d_4'
 
     input:
     tuple val(sample_id), path(fastq)
