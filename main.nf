@@ -104,10 +104,10 @@ workflow {
     AS_DEDUPLICATE(AMPLICON_SORTER.out.raw_consensus)
 
     // [F] Per-sample Read Counting
-    OTU_COUNT_TABLE(
-        AS_DEDUPLICATE.out.consensus,
-        AS_PRE_STATS.out.count
-    )
+    ch_otu_count_input = AS_DEDUPLICATE.out.consensus
+        .join(AS_PRE_STATS.out.count)
+
+    OTU_COUNT_TABLE(ch_otu_count_input)
 
     // --- 4. Global Consolidation Phase ---
 

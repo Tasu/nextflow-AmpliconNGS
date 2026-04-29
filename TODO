@@ -1,5 +1,29 @@
 ## TODO
 
+### FEATURE ADDITION
+- Status: done
+- Summary: Added error handling for zero or partial BLAST hits, and NA taxonomy assignment for unmatched OTUs
+- Changes:
+  - `module/blast_annotate.nf`: Skip `blastn` and emit an empty `all_otus_blast_results.tsv` when the input FASTA is empty
+  - `module/create_biom.nf` (`TAXONKIT_LINEAGE`): Skip TaxonKit when BLAST results are empty; filter rows with missing/invalid `staxids` (empty, `0`, `N/A`) before passing to TaxonKit to prevent errors
+  - `module/create_biom.nf` (`BIOM_GENERATE`): Implemented the script. Left-joins the OTU count matrix with BLAST/TaxonKit results; OTUs with no BLAST hit are assigned `NA;NA;NA;NA;NA;NA;NA` and are retained (not excluded). Outputs both TSV and JSON-format BIOM files
+  - `module/summary_report.nf`: Changed fallback taxonomy for OTUs with no BLAST hit from `"Unclassified"` to `"NA"` to keep them in aggregation
+
+### BUG FIX
+- Status: fixed in `main.nf` and `module/otu_count.nf`.
+- Root cause: `OTU_COUNT_TABLE` received `[sample_id, path]` tuple channels but declared bare `path` inputs, causing Nextflow to treat `sample_id` as a file path.
+- Fix: join the two per-sample channels by `sample_id` in `main.nf` before passing to `OTU_COUNT_TABLE`, and update the process input to `tuple val(sample_id), path(consensus_fasta), path(read_count_file)`. Also rewrote the embedded Python to correctly operate per-sample using Biopython.
+- Error code
+```
+Error executing process > 'OTU_COUNT_TABLE (1)'
+
+Caused by:
+  Not a valid path value: 'barcode31_F04_R01'
+
+
+
+```
+
 ### BUG FIX
 - Status: fixed in `module/amplicon_sorter.nf` (`AS_DEDUPLICATE`).
 - Root cause: `\${raw_fastas}` was escaped in the script block, so Bash (with `-u`) treated `raw_fastas` as an unbound shell variable.

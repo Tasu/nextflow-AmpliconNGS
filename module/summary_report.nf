@@ -62,20 +62,18 @@ process SUMMARY_REPORT {
 
 
     # --- 2. Aggregate OTU Table at Phylum Level using BLAST Annotations ---
-    # Load BLAST results: OTU_ID -> Phylum
+    # Load BLAST results: OTU_ID -> taxonomy string
     otu_to_phylum = {}
     with open("${blast_results}", 'r') as bf:
         for line in bf:
             cols = line.strip().split('\t')
             if len(cols) < 2: continue
             otu_id = cols[0]
-            # Assuming BLAST format includes taxonomy string or Phylum is extractable
-            # For simplicity, we search for Phylum-like patterns or take the assigned lineage
             full_tax = cols[1]
-            # Simple heuristic: extract Phylum if following a common format, else use full string
             otu_to_phylum[otu_id] = full_tax
 
     # Load OTU Matrix and collapse
+    # OTUs with no BLAST hit are assigned "NA" (not excluded)
     otu_phylum_summary = defaultdict(lambda: defaultdict(int))
     otu_samples = []
 
@@ -86,8 +84,8 @@ process SUMMARY_REPORT {
             cols = line.strip().split('\t')
             otu_id = cols[0]
             counts = [int(x) for x in cols[1:]]
-            
-            phylum = otu_to_phylum.get(otu_id, "Unclassified")
+
+            phylum = otu_to_phylum.get(otu_id, "NA")
             for i, s in enumerate(otu_samples):
                 otu_phylum_summary[phylum][s] += counts[i]
 

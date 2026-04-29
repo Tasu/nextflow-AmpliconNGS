@@ -23,17 +23,24 @@ process BLAST_ANNOTATE {
 
     script:
     """
-    # Execute batch BLAST search
-    # Params: min 70% query coverage, max 1 target, evalue 1e-10
-    ${blast_type} \\
-        -query ${unique_otus_fasta} \\
-        -db ${db_dir}/${db_name} \\
-        -max_target_seqs 1 \\
-        -qcov_hsp_perc 70 \\
-        -evalue 1e-10 \\
-        -num_threads ${task.cpus} \\
-        -outfmt "6 qseqid sseqid stitle pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids" \\
-        -out all_otus_blast_results.tsv
+    # If the input FASTA is empty (all samples had zero OTUs), skip BLAST and
+    # emit an empty result file to allow downstream processes to continue.
+    if [[ ! -s "${unique_otus_fasta}" ]]; then
+        echo "WARNING: Input FASTA is empty — skipping BLAST annotation." >&2
+        touch all_otus_blast_results.tsv
+    else
+        # Execute batch BLAST search
+        # Params: min 70% query coverage, max 1 target, evalue 1e-10
+        ${blast_type} \\
+            -query ${unique_otus_fasta} \\
+            -db ${db_dir}/${db_name} \\
+            -max_target_seqs 1 \\
+            -qcov_hsp_perc 70 \\
+            -evalue 1e-10 \\
+            -num_threads ${task.cpus} \\
+            -outfmt "6 qseqid sseqid stitle pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids" \\
+            -out all_otus_blast_results.tsv
+    fi
 
     # Capture BLAST version for provenance
     echo "BLAST+: \$(${blast_type} -version | head -n 1 | awk '{print \$2}')" > versions_blast.yml

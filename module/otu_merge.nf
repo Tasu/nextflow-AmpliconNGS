@@ -52,10 +52,14 @@ for f in fastas:
         # Here we increment by 1 for the existence of the cluster in the sample
         otu_counts[target_otu][sample_id] += 1
 
-# Write integrated unique OTUs to FASTA
+# Write integrated unique OTUs to FASTA (empty file if no sequences)
 with open("integrated_unique_otus.fasta", "w") as fa:
     for seq, otu_id in unique_seqs.items():
         fa.write(f">{otu_id}\\n{seq}\\n")
+
+if not unique_seqs:
+    import sys
+    print("WARNING: No OTU sequences found across all samples. integrated_unique_otus.fasta will be empty.", file=sys.stderr)
 
 # Write OTU count matrix (TSV)
 samples = sorted("${sample_ids}".split())
