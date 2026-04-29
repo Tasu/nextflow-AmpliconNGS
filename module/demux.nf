@@ -4,7 +4,7 @@
 
 process CUTADAPT_MARK {
     tag "${sample_id}"
-    container 'https://depot.galaxyproject.org/singularity/cutadapt:5.0--py39hbcbf7aa_0'
+    container 'https://depot.galaxyproject.org/singularity/cutadapt:5.0'
 
     input:
     tuple val(sample_id), path(fastq), val(min_len), val(max_len), val(f_idx), val(f_prm), val(r_idx), val(r_prm)
