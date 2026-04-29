@@ -12,8 +12,8 @@ process OTU_MERGE {
     label 'process_medium'
     publishDir "${params.outdir}/04_otu_merge", mode: 'copy'
 
-    // Use stable Galaxy Depot reference (version tag only)
-    container 'depot.galaxyproject.org/singularity/biopython:1.79'
+    // Using the verified Biopython container (Python 3.11 based)
+    container 'https://depot.galaxyproject.org/singularity/biopython:1.79--py311h1425ee9_1'
 
     input:
     tuple val(sample_ids), path(consensus_fastas) // List of all consensus files

@@ -5,7 +5,7 @@
 process PORECHOP_TRIM {
     tag "${fastq_dir_id}"
     label 'process_medium'
-    container 'depot.galaxyproject.org/singularity/porechop:0.2.4'
+    container 'https://depot.galaxyproject.org/singularity/porechop:0.2.4--py39h2de1943_9'
 
     input:
     tuple val(fastq_dir_id), path(fastq_files)
@@ -34,7 +34,7 @@ process SEQKIT_CLEAN {
     tag "${fastq_dir_id}"
     label 'process_low'
     publishDir "${params.outdir}/00_preprocess/${fastq_dir_id}", mode: 'copy'
-    container 'depot.galaxyproject.org/singularity/seqkit:2.9.0'
+    container 'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0'
 
     input:
     tuple val(fastq_dir_id), path(round1_fastq)

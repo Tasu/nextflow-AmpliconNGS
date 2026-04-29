@@ -4,7 +4,7 @@
 
 process TAXONKIT_LINEAGE {
     label 'process_low'
-    container 'depot.galaxyproject.org/singularity/taxonkit:0.18.0'
+    container 'https://depot.galaxyproject.org/singularity/taxonkit:0.18.0--h9ee0642_0'
 
     input:
     path blast_results

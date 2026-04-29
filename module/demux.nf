@@ -4,7 +4,7 @@
 
 process CUTADAPT_MARK {
     tag "${sample_id}"
-    container 'depot.galaxyproject.org/singularity/cutadapt:5.0'
+    container 'https://depot.galaxyproject.org/singularity/cutadapt:5.0--py39hbcbf7aa_0'
 
     input:
     tuple val(sample_id), path(fastq), val(min_len), val(max_len), val(f_idx), val(f_prm), val(r_idx), val(r_prm)
@@ -28,7 +28,7 @@ process CUTADAPT_MARK {
 process BIOPYTHON_EXTRACT {
     tag "${sample_id}"
     publishDir "${params.outdir}/01_demux/${sample_id}", mode: 'copy'
-    container 'depot.galaxyproject.org/singularity/biopython:1.79'
+    container 'https://depot.galaxyproject.org/singularity/biopython:1.79'
 
     input:
     tuple val(sample_id), path(marked_fastq), val(min_len), val(max_len), val(f_idx), val(r_idx)
