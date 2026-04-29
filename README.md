@@ -12,6 +12,47 @@ This Nextflow pipeline performs comprehensive analysis of 18S amplicon sequencin
 - Final result summarization
 - Robust FASTQ input handling when identical FASTQ file names exist in different barcode directories
 
+## Pipeline Flow and Output Structure
+
+The pipeline runs in the following order:
+
+1. `00_preprocess`: Adapter trimming and basic read cleanup per input `fastq_dir`
+2. `01_demux`: Sample-level demultiplexing and primer-region extraction
+3. `02_kraken_filter`: Kraken2 classification + KrakenTools target read extraction
+4. `03_amplicon_sorter`: Clustering and consensus sequence generation per sample
+5. `04_otu_merge`: Per-sample OTU counting and global OTU merge
+6. `05_blast_annotation`: BLAST annotation of merged unique OTUs
+7. `06_biom`: BIOM/TSV generation with taxonomy lineage integration
+8. `07_summary_report`: Phylum-level summary tables
+9. `06_final_results`: Consolidated deliverables for downstream use
+10. `99_provenance`: Workflow run metadata and versions
+
+Published output directory structure (`--outdir`):
+
+```text
+results/
+├── 00_preprocess/
+├── 01_demux/
+├── 02_kraken_filter/
+├── 03_amplicon_sorter/
+├── 04_otu_merge/
+├── 05_blast_annotation/
+├── 06_biom/
+│   ├── merged_results.biom
+│   └── merged_otu_report.tsv
+├── 06_final_results/
+│   ├── otu_count_matrix.tsv
+│   ├── sequences/
+│   │   ├── integrated_unique_otus.fasta
+│   │   └── all_samples_consensus.fasta
+│   └── blast/
+│       └── blast_annotation.tsv
+├── 07_summary_report/
+│   ├── summary_phylum_kraken2.tsv
+│   └── summary_phylum_otu.tsv
+└── 99_provenance/
+```
+
 ## Prerequisites
 
 - Tested with the following software:
