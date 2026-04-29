@@ -11,7 +11,7 @@
 process AS_PRE_STATS {
     tag "${sample_id}"
     label 'process_low'
-    container 'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0'
+    container 'depot.galaxyproject.org/singularity/seqkit:2.9.0'
 
     input:
     tuple val(sample_id), path(reads)
@@ -92,7 +92,7 @@ process AS_DEDUPLICATE {
     tag "${sample_id}"
     label 'process_low'
     publishDir "${params.outdir}/03_amplicon_sorter/${sample_id}", mode: 'copy'
-    container 'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0'
+    container 'depot.galaxyproject.org/singularity/seqkit:2.9.0'
 
     input:
     tuple val(sample_id), path(raw_fastas)

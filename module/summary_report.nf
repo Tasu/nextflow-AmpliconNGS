@@ -11,8 +11,8 @@ process SUMMARY_REPORT {
     label 'process_medium'
     publishDir "${params.outdir}/05_report", mode: 'copy'
 
-    // Using the consistent Python 3.11 based container
-    container 'https://depot.galaxyproject.org/singularity/biopython:1.79--py311h1425ee9_1'
+    // Use stable Galaxy Depot reference (version tag only)
+    container 'depot.galaxyproject.org/singularity/biopython:1.79'
 
     input:
     path kraken_reports    // Collected from KRAKEN2_CLASSIFY.out.report

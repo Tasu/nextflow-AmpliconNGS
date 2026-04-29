@@ -11,8 +11,8 @@ process OTU_COUNT_TABLE {
     label 'process_medium'
     publishDir "${params.outdir}/04_otu_merge", mode: 'copy'
 
-    // Using the verified Biopython container (Python 3.11 based)
-    container 'https://depot.galaxyproject.org/singularity/biopython:1.79--py311h1425ee9_1'
+    // Use stable Galaxy Depot reference (version tag only)
+    container 'depot.galaxyproject.org/singularity/biopython:1.79'
 
     input:
     tuple val(sample_id), path(consensus_fasta), path(read_count_file)

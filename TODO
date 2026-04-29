@@ -1,5 +1,26 @@
 ## TODO
 
+### BUG FIX
+- report date:Apr-29-2026
+- Status: done (Apr-29-2026)
+- status update date:Apr-29-2026
+- error code:
+```
+Pulling Singularity image https://depot.galaxyproject.org/singularity/biopython:1.79--py311h1425ee9_1 [cache /pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/singularity_cache/depot.galaxyproject.org-singularity-biopython-1.79--py311h1425ee9_1.img]
+Error executing process > 'OTU_COUNT_TABLE (2)'
+
+Caused by:
+  Failed to pull singularity image
+  command: singularity pull  --name depot.galaxyproject.org-singularity-biopython-1.79--py311h1425ee9_1.img.pulling.1777445967765 https://depot.galaxyproject.org/singularity/biopython:1.79--py311h1425ee9_1 > /dev/null
+  status : 255
+  message:
+    INFO:    Downloading network image
+    FATAL:   the requested image was not found
+```
+- suggestions: use depot.galaxyproject.org/singularity/biopython:1.79 instead of url containing hash value. 
+- Follow-up done (Apr-29-2026): migrated remaining hash-pinned container image references to version-only tags across modules.
+
+
 ### FEATURE ADDITION
 - Status: done
 - Summary: Added error handling for zero or partial BLAST hits, and NA taxonomy assignment for unmatched OTUs
