@@ -13,3 +13,6 @@ samplesheet/*.csv
 
 # ignore run directory
 run/
+
+# ignore local Nextflow execution log
+nextflow.log

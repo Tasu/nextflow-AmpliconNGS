@@ -9,6 +9,31 @@
 
 ## BUG FIX
 
+### [BUG-006] SUMMARY_REPORT heredoc parsing failure
+- Report date: 2026-04-30
+- Status: in-progress
+- Status update date: 2026-04-30
+- Affected files: `module/summary_report.nf`
+- Root cause: `SUMMARY_REPORT` process script generated a malformed here-document (`python3 << 'EOF' ... EOF`) where shell parsing failed (`wanted \`EOF\``), leading to Python code being parsed with invalid leading indentation.
+- Symptom:
+  - `.command.sh: line 79: warning: here-document at line 2 delimited by end-of-file (wanted \`EOF\`)`
+  - `IndentationError: unexpected indent`
+- Error log:
+```text
+Error executing process > 'SUMMARY_REPORT'
+
+Caused by:
+  Process `SUMMARY_REPORT` terminated with an error exit status (1)
+
+Command error:
+  .command.sh: line 79: warning: here-document at line 2 delimited by end-of-file (wanted `EOF')
+    File "<stdin>", line 1
+      import os
+  IndentationError: unexpected indent
+```
+- Progress:
+  - 2026-04-30: adjusted `module/summary_report.nf` heredoc Python block to start at column 0 and avoid shell heredoc termination mismatch.
+
 ### [BUG-005] OTU_MERGE input cardinality warning
 - Report date: 2026-04-30
 - Status: done
