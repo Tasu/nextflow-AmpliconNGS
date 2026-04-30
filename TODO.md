@@ -11,7 +11,7 @@
 
 ### [BUG-006] SUMMARY_REPORT heredoc parsing failure
 - Report date: 2026-04-30
-- Status: in-progress
+- Status: done
 - Status update date: 2026-04-30
 - Affected files: `module/summary_report.nf`
 - Root cause: `SUMMARY_REPORT` process script generated a malformed here-document (`python3 << 'EOF' ... EOF`) where shell parsing failed (`wanted \`EOF\``), leading to Python code being parsed with invalid leading indentation.
@@ -34,6 +34,7 @@ Command error:
 - Progress:
   - 2026-04-30: adjusted `module/summary_report.nf` heredoc Python block to start at column 0 and avoid shell heredoc termination mismatch.
   - 2026-04-30: fixed embedded Python newline escaping (`\n` -> `\\n`) so generated `.command.sh` does not break string literals at runtime.
+  - 2026-04-30: resume rerun completed `SUMMARY_REPORT` successfully; related embedded Python newline issue in `BIOM_GENERATE` also fixed.
 
 ### [BUG-005] OTU_MERGE input cardinality warning
 - Report date: 2026-04-30

@@ -177,5 +177,10 @@ workflow {
         .mix(SUMMARY_REPORT.out.versions)
         .collect()
 
-    GENERATE_PROVENANCE(ch_versions, workflow)
+    def workflow_info = [
+        nextflow_version: workflow.nextflow.version.toString(),
+        command_line: workflow.commandLine?.toString() ?: "N/A"
+    ]
+
+    GENERATE_PROVENANCE(ch_versions, workflow_info)
 }

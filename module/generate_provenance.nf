@@ -44,8 +44,8 @@ process GENERATE_PROVENANCE {
     with open("software_versions.md", "w") as md:
         md.write("# Software Provenance Report\\n\\n")
         md.write(f"**Analysis Date:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\\n")
-        md.write(f"**Nextflow Version:** ${workflow_info.nextflow.version}\\n")
-        md.write(f"**Command Line:** `${workflow_info.commandLine}`\\n\\n")
+        md.write(f"**Nextflow Version:** ${workflow_info.nextflow_version}\\n")
+        md.write(f"**Command Line:** `${workflow_info.command_line}`\\n\\n")
         md.write("| Software/Tool | Version |\\n")
         md.write("| :--- | :--- |\\n")
         for tool, ver in sorted(version_data.items()):
