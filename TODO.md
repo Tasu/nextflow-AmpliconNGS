@@ -1,6 +1,7 @@
 # TODO
 
 ## Rules
+
 - Keep each item under a category (`BUG FIX` or `FEATURE ADDITION`).
 - Use a unique ID for each item.
 - Track `Report date`, `Status`, and `Status update date`.
@@ -10,6 +11,7 @@
 ## BUG FIX
 
 ### [BUG-006] SUMMARY_REPORT heredoc parsing failure
+
 - Report date: 2026-04-30
 - Status: done
 - Status update date: 2026-04-30
@@ -19,6 +21,7 @@
   - `.command.sh: line 79: warning: here-document at line 2 delimited by end-of-file (wanted \`EOF\`)`
   - `IndentationError: unexpected indent`
 - Error log:
+
 ```text
 Error executing process > 'SUMMARY_REPORT'
 
@@ -31,12 +34,14 @@ Command error:
       import os
   IndentationError: unexpected indent
 ```
+
 - Progress:
   - 2026-04-30: adjusted `module/summary_report.nf` heredoc Python block to start at column 0 and avoid shell heredoc termination mismatch.
   - 2026-04-30: fixed embedded Python newline escaping (`\n` -> `\\n`) so generated `.command.sh` does not break string literals at runtime.
   - 2026-04-30: resume rerun completed `SUMMARY_REPORT` successfully; related embedded Python newline issue in `BIOM_GENERATE` also fixed.
 
 ### [BUG-005] OTU_MERGE input cardinality warning
+
 - Report date: 2026-04-30
 - Status: done
 - Status update date: 2026-04-30
@@ -46,11 +51,13 @@ Command error:
   - Updated `OTU_MERGE` inputs to accept collected file lists directly as `path(consensus_fastas)` and `path(count_files)`.
   - Removed dependency on external `sample_ids` value and derived sample IDs from consensus FASTA filenames inside the Python script.
 - Warning log:
+
 ```text
 WARN: Input tuple does not match input set cardinality declared by process `OTU_MERGE` -- offending value: [/.../barcode31_F02_R01_clustered_consensus.fasta, ...]
 ```
 
 ### [BUG-004] OTU_COUNT_TABLE publish filename collision
+
 - Report date: 2026-04-30
 - Status: done
 - Status update date: 2026-04-30
@@ -63,11 +70,13 @@ WARN: Input tuple does not match input set cardinality declared by process `OTU_
     - `${sample_id}_versions_otu_count.yml`
   - Updated process `output:` declarations and script write targets accordingly.
 - Warning log:
+
 ```text
 WARN: Failed to publish file: .../otu_table_final.tsv; to: .../results/04_otu_merge/otu_table_final.tsv [copy] -- See log file for details
 ```
 
 ### [BUG-003] GENERATE_PROVENANCE input filename collision
+
 - Report date: 2026-04-29
 - Status: done
 - Status update date: 2026-04-29
@@ -75,6 +84,7 @@ WARN: Failed to publish file: .../otu_table_final.tsv; to: .../results/04_otu_me
 - Root cause: `GENERATE_PROVENANCE` staged a collected list of `versions_*.yml` files with duplicate basenames into one work directory.
 - Fix: set `stageAs: 'versions??/*'` on `v_files` input so each file is staged in a separate numbered subdirectory.
 - Error log:
+
 ```text
 Error executing process > 'GENERATE_PROVENANCE'
 
@@ -83,6 +93,7 @@ Caused by:
 ```
 
 ### [BUG-002] OTU_COUNT_TABLE invalid path value
+
 - Report date: 2026-04-28
 - Status: done
 - Status update date: 2026-04-28
@@ -90,6 +101,7 @@ Caused by:
 - Root cause: `OTU_COUNT_TABLE` received `[sample_id, path]` tuple channels but declared bare `path` inputs.
 - Fix: join channels by `sample_id` in `main.nf`, and update process input to `tuple val(sample_id), path(consensus_fasta), path(read_count_file)`.
 - Error log:
+
 ```text
 Error executing process > 'OTU_COUNT_TABLE (1)'
 
@@ -98,6 +110,7 @@ Caused by:
 ```
 
 ### [BUG-001] AS_DEDUPLICATE unbound raw_fastas
+
 - Report date: 2026-04-28
 - Status: done
 - Status update date: 2026-04-28
@@ -105,6 +118,7 @@ Caused by:
 - Root cause: `\${raw_fastas}` was escaped in the script block, so Bash with `-u` treated `raw_fastas` as unbound.
 - Fix: use `${raw_fastas}` so Nextflow interpolates staged input FASTA paths.
 - Error log:
+
 ```text
 Error executing process > 'AS_DEDUPLICATE (barcode31_F02_R01)'
 
@@ -118,6 +132,7 @@ Command error:
 ```
 
 - Executed `.command.sh`:
+
 ```bash
 #!/bin/bash -ue
 # Merge all cluster consensus files and remove exact duplicates.
@@ -143,6 +158,7 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 ## FEATURE ADDITION
 
 ### [FEAT-002] Container image maintenance workflow
+
 - Report date: 2026-04-30
 - Status: done
 - Status update date: 2026-04-30
@@ -159,10 +175,10 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   - 2026-04-30: added FEAT-002 operation examples to `params.yaml` (warning-only default, strict mode option, and full `container_images` override template).
   - 2026-04-30: simplified partial override design to use only `container_images` (single-key operation); unspecified image keys keep defaults via config merge.
 
-
 ## INFRASTRUCTURE / CLEANUP
 
 ### [INFRA-001] Prepare trash/ and .gitignore for public release
+
 - Report date: 2026-04-29
 - Status: planned
 - Status update date: N/A
@@ -176,7 +192,9 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 - Files currently in trash/:
   - `nextflowPipelineGenerationLog.md` (superseded by README + TODO)
 - Next step: Add entry to `.gitignore` when approaching public release.
+
 ### [FEAT-001] Zero/partial BLAST-hit handling and NA taxonomy fallback
+
 - Report date: N/A
 - Status: done
 - Status update date: N/A
@@ -188,6 +206,7 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   - `module/summary_report.nf`: fallback taxonomy for no BLAST hit changed from `Unclassified` to `NA`.
 
 ### [FEAT-003] BIOM format output generation
+
 - Report date: 2026-04-29
 - Status: done
 - Status update date: 2026-04-30
@@ -203,12 +222,14 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   - Requires pandas + biom-format containers.
 
 ### [FEAT-004] Output folder hierarchy restructuring
+
 - Report date: 2026-04-29
 - Status: done
 - Status update date: 2026-04-30
 - Summary: standardize output folder naming and numbering to match pipeline flow.
 - Current structure (irregular):
-  ```
+
+```text
   results/
   ├── 00_preprocess
   ├── 01_demux
@@ -218,9 +239,11 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   ├── 05_annotation         ← should be 06, rename to blast_annotation
   ├── 00_provenance
   ├── 01_Final_Analysis, 02_Sequences, 03_Annotation (from FINALIZE_RESULTS)
-  ```
+```
+
 - Target structure (sequential):
-  ```
+
+```text
   results/
   ├── 00_preprocess
   ├── 01_demux
@@ -232,10 +255,12 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   ├── 07_biom               ← from BIOM_GENERATE
   ├── 08_summary_report     ← from SUMMARY_REPORT
   └── 99_provenance         ← move to end
-  ```
+```
+
 - Affected files: all `module/*.nf` publishDir directives.
 
 ### [FEAT-005] SUMMARY_REPORT integration
+
 - Report date: 2026-04-29
 - Status: done
 - Status update date: 2026-04-30

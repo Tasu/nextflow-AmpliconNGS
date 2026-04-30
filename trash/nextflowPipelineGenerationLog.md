@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 # 「Nanoporeアンプリコン解析パイプライン」要件定義
 
 # パラメータ設定方針: params.yaml + nextflow.config

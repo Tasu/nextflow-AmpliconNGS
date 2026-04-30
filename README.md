@@ -85,23 +85,27 @@ This creates `sif/amplicon_sorter_v2.sif` with Python 3.9.7 and required librari
 Edit `params.yaml` to set paths and parameters for your environment:
 
 #### Required Database Paths
+
 - `kraken2_db`: Path to Kraken2 database (e.g., `/path/to/kraken2_db`)
 - `blast_db_dir`: Directory containing BLAST databases (e.g., `/path/to/blast_db`)
 - `tax_db_dir`: Directory containing taxonomy databases (e.g., `/path/to/taxonomy`)
 
 #### Container and Script Paths
+
 - `as_container_path`: Path to the built Singularity container (e.g., `/absolute/path/to/sif/amplicon_sorter_v2.sif`)
 - `as_script_path`: Path to the local `amplicon_sorter.py` script
 
 #### Centralized Container Image Catalog
+
 - All module container URIs are centrally managed in `nextflow.config` via `params.container_images`.
 - To update image tags, edit only this map (module files do not need updates).
 - For simple operation, set only selected keys in `params.yaml` under `container_images` (unspecified keys keep defaults).
 - Optional pre-run checks are available:
-    - `container_preflight_check`: enable URL connectivity checks before workflow execution (default: `true`)
-    - `container_preflight_strict`: fail early on unreachable URLs (default: `false`, warn only)
-    - `container_preflight_suggest_tags`: suggest candidate tags from Galaxy Depot index when a URL is unreachable (default: `true`)
-    - `container_registry_index_url`: index used for tag suggestions (default: `https://depot.galaxyproject.org/singularity/`)
+
+  - `container_preflight_check`: enable URL connectivity checks before workflow execution (default: `true`)
+  - `container_preflight_strict`: fail early on unreachable URLs (default: `false`, warn only)
+  - `container_preflight_suggest_tags`: suggest candidate tags from Galaxy Depot index when a URL is unreachable (default: `true`)
+  - `container_registry_index_url`: index used for tag suggestions (default: `https://depot.galaxyproject.org/singularity/`)
 
 Example (`params.yaml`):
 
@@ -112,9 +116,11 @@ container_images:
 ```
 
 `amplicon_sorter.py` source repository:
-- https://github.com/avierstr/amplicon_sorter
+
+- <https://github.com/avierstr/amplicon_sorter>
 
 #### Other Parameters
+
 - `sample_sheet`: Path to sample sheet CSV (default in repo: `samplesheet/samplesheet_test_generated.csv`)
 - `outdir`: Output directory (default: `results`)
 - `target_taxid`: TaxID used in KrakenTools extraction (example: `7711`)
@@ -135,9 +141,11 @@ container_images:
 Use the provided helper script to generate sample sheets:
 
 **To generate target combinations from a template:**
+
 ```bash
 python helperScript/generate_target_sample_sheet.py
 ```
+
 This reads index/primer combinations from `template/18SV4-9_index.tsv` and prompts for F/R index selections to generate all combinations for the specified barcode range.
 
 ## Usage
@@ -151,6 +159,7 @@ nextflow run main.nf -profile singularity -params-file params.yaml
 ### Recommended Run Layout (per analysis)
 
 For reproducibility and easier cleanup, keep each run in its own analysis directory:
+
 - `analysisDir/work`: Nextflow work directory
 - `analysisDir/results`: published outputs (`params.outdir` target)
 
@@ -169,6 +178,7 @@ nextflow run /path/to/nextflow-18SAmplicon/main.nf \
 ```
 
 Notes:
+
 - `--outdir` overrides `outdir` in `params.yaml`.
 - `-work-dir` controls where Nextflow stores task working files and cache.
 - This pattern works whether `analysisDir` is specified as a relative path (from launch directory) or an absolute path.
