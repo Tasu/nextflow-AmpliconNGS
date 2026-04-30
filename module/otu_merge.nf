@@ -13,7 +13,7 @@ process OTU_MERGE {
     publishDir "${params.outdir}/04_otu_merge", mode: 'copy'
 
     // Using the verified Biopython container (Python 3.11 based)
-    container 'https://depot.galaxyproject.org/singularity/biopython:1.79'
+    container "${params.container_images.biopython}"
 
     input:
     path(consensus_fastas) // Collected list of all consensus files

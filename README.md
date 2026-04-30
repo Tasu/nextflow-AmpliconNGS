@@ -22,8 +22,8 @@ The pipeline runs in the following order:
 4. `03_amplicon_sorter`: Clustering and consensus sequence generation per sample
 5. `04_otu_merge`: Per-sample OTU counting and global OTU merge
 6. `05_blast_annotation`: BLAST annotation of merged unique OTUs
-7. `06_biom`: BIOM/TSV generation with taxonomy lineage integration
-8. `07_summary_report`: Phylum-level summary tables
+7. `07_biom`: BIOM/TSV generation with taxonomy lineage integration
+8. `08_summary_report`: Phylum-level summary tables
 9. `06_final_results`: Consolidated deliverables for downstream use
 10. `99_provenance`: Workflow run metadata and versions
 
@@ -37,7 +37,7 @@ results/
 ├── 03_amplicon_sorter/
 ├── 04_otu_merge/
 ├── 05_blast_annotation/
-├── 06_biom/
+├── 07_biom/
 │   ├── merged_results.biom
 │   └── merged_otu_report.tsv
 ├── 06_final_results/
@@ -47,7 +47,7 @@ results/
 │   │   └── all_samples_consensus.fasta
 │   └── blast/
 │       └── blast_annotation.tsv
-├── 07_summary_report/
+├── 08_summary_report/
 │   ├── summary_phylum_kraken2.tsv
 │   └── summary_phylum_otu.tsv
 └── 99_provenance/
@@ -92,6 +92,24 @@ Edit `params.yaml` to set paths and parameters for your environment:
 #### Container and Script Paths
 - `as_container_path`: Path to the built Singularity container (e.g., `/absolute/path/to/sif/amplicon_sorter_v2.sif`)
 - `as_script_path`: Path to the local `amplicon_sorter.py` script
+
+#### Centralized Container Image Catalog
+- All module container URIs are centrally managed in `nextflow.config` via `params.container_images`.
+- To update image tags, edit only this map (module files do not need updates).
+- For simple operation, set only selected keys in `params.yaml` under `container_images` (unspecified keys keep defaults).
+- Optional pre-run checks are available:
+    - `container_preflight_check`: enable URL connectivity checks before workflow execution (default: `true`)
+    - `container_preflight_strict`: fail early on unreachable URLs (default: `false`, warn only)
+    - `container_preflight_suggest_tags`: suggest candidate tags from Galaxy Depot index when a URL is unreachable (default: `true`)
+    - `container_registry_index_url`: index used for tag suggestions (default: `https://depot.galaxyproject.org/singularity/`)
+
+Example (`params.yaml`):
+
+```yaml
+container_images:
+    blast: "https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4"
+    biopython: "https://depot.galaxyproject.org/singularity/biopython:1.79"
+```
 
 `amplicon_sorter.py` source repository:
 - https://github.com/avierstr/amplicon_sorter

@@ -13,7 +13,7 @@ process KRAKEN2_CLASSIFY {
     tag "${sample_id}"
     label 'process_high'
     // Using verified stable URI from Galaxy Depot
-    container 'https://depot.galaxyproject.org/singularity/kraken2:2.1.3--pl5321h077b44d_4'
+    container "${params.container_images.kraken2}"
 
     input:
     tuple val(sample_id), path(fastq)
@@ -59,7 +59,7 @@ process KRAKENTOOLS_EXTRACT {
     label 'process_medium'
     publishDir "${params.outdir}/02_kraken_filter/${sample_id}", mode: 'copy'
     // Using verified stable URI from Docker Hub (Nanozoo)
-    container 'docker://nanozoo/krakentools:1.2--13d5ba5'
+    container "${params.container_images.krakentools}"
 
     input:
     tuple val(sample_id), path(kraken_out), path(kraken_report), path(fastq)

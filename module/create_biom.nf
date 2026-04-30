@@ -4,7 +4,7 @@
 
 process TAXONKIT_LINEAGE {
     label 'process_low'
-    container 'https://depot.galaxyproject.org/singularity/taxonkit:0.18.0--h9ee0642_0'
+    container "${params.container_images.taxonkit}"
 
     input:
     path blast_results
@@ -41,8 +41,8 @@ process TAXONKIT_LINEAGE {
 
 process BIOM_GENERATE {
     label 'process_medium'
-    publishDir "${params.outdir}/06_biom", mode: 'copy'
-    container 'https://depot.galaxyproject.org/singularity/biom-format:2.1.15'
+    publishDir "${params.outdir}/07_biom", mode: 'copy'
+    container "${params.container_images.biom_format}"
     // Note: Biom-format image should include pandas. If not, quay.io/biocontainers/pandas:2.2.1 can be used with a combined script.
 
     input:

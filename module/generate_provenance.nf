@@ -12,7 +12,7 @@ process GENERATE_PROVENANCE {
     publishDir "${params.outdir}/99_provenance", mode: 'copy'
 
     // Using the verified Biopython container (Python 3.11 based)
-    container 'https://depot.galaxyproject.org/singularity/biopython:1.79'
+    container "${params.container_images.biopython}"
 
     input:
     // Stage each collected version file into a separate numbered subdirectory

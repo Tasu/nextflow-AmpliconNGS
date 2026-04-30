@@ -15,7 +15,104 @@ include { SUMMARY_REPORT                                    } from './module/sum
 include { FINALIZE_RESULTS                                  } from './module/finalize_results.nf'
 include { GENERATE_PROVENANCE                               } from './module/generate_provenance.nf'
 
+def isHttpReachable(String url, int timeoutMs = 8000) {
+    try {
+        def conn = new URL(url).openConnection() as HttpURLConnection
+        conn.setRequestMethod('HEAD')
+        conn.setConnectTimeout(timeoutMs)
+        conn.setReadTimeout(timeoutMs)
+        conn.setInstanceFollowRedirects(true)
+        conn.connect()
+        int code = conn.responseCode
+        conn.disconnect()
+        return code >= 200 && code < 400
+    } catch (all) {
+        return false
+    }
+}
+
+def fetchDepotContainerIndex(String indexUrl, int timeoutMs = 8000) {
+    try {
+        def conn = new URL(indexUrl).openConnection() as HttpURLConnection
+        conn.setRequestMethod('GET')
+        conn.setConnectTimeout(timeoutMs)
+        conn.setReadTimeout(timeoutMs)
+        conn.setInstanceFollowRedirects(true)
+        def html = conn.inputStream.getText('UTF-8')
+        conn.disconnect()
+        def matcher = (html =~ /href="([^"]+)"/)
+        return matcher.collect { it[1] }
+    } catch (all) {
+        return []
+    }
+}
+
+def suggestContainerTags(String url, List<String> indexEntries, int limit = 5) {
+    if (!url?.startsWith('https://depot.galaxyproject.org/singularity/') || !indexEntries) {
+        return []
+    }
+
+    def fileName = url.tokenize('/')[-1]
+    def imageName = fileName.contains(':') ? fileName.split(':', 2)[0] : fileName
+    if (!imageName) {
+        return []
+    }
+
+    return indexEntries
+        .findAll { it.startsWith("${imageName}:") }
+        .sort()
+        .reverse()
+        .take(limit)
+}
+
+def runContainerPreflightChecks(params) {
+    def imageMap = (params.container_images ?: [:]) as Map
+    def timeoutMs = (params.container_preflight_timeout_ms ?: 8000) as int
+    def strictMode = (params.container_preflight_strict ?: false) as boolean
+    def suggestTags = (params.container_preflight_suggest_tags ?: true) as boolean
+    def suggestionLimit = (params.container_suggestion_limit ?: 5) as int
+    def indexUrl = (params.container_registry_index_url ?: 'https://depot.galaxyproject.org/singularity/').toString()
+
+    if (!imageMap) {
+        log.warn "[container-preflight] No entries found in params.container_images. Skipping checks."
+        return
+    }
+
+    def uniqueUrls = imageMap.values().findAll { it != null && it.toString().trim() }.collect { it.toString() }.unique()
+    def depotIndex = suggestTags ? fetchDepotContainerIndex(indexUrl, timeoutMs) : []
+    def failures = []
+
+    uniqueUrls.each { url ->
+        if (!(url.startsWith('http://') || url.startsWith('https://'))) {
+            log.info "[container-preflight] Skip connectivity check for non-HTTP container ref: ${url}"
+            return
+        }
+
+        if (!isHttpReachable(url, timeoutMs)) {
+            def msg = "[container-preflight] Unreachable container URL: ${url}"
+            if (suggestTags) {
+                def candidates = suggestContainerTags(url, depotIndex, suggestionLimit)
+                if (candidates) {
+                    msg += " | candidate tags: ${candidates.join(', ')}"
+                }
+            }
+            failures << msg
+            log.warn msg
+        } else {
+            log.info "[container-preflight] OK: ${url}"
+        }
+    }
+
+    if (strictMode && failures) {
+        throw new IllegalStateException("Container preflight failed for ${failures.size()} URL(s). Set --container_preflight_strict false to continue with warnings.")
+    }
+}
+
 workflow {
+
+    if (params.container_preflight_check) {
+        runContainerPreflightChecks(params)
+    }
 
     // --- 2. Input Channel Creation ---
     

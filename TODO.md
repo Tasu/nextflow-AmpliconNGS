@@ -143,11 +143,21 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 ## FEATURE ADDITION
 
 ### [FEAT-002] Container image maintenance workflow
+- Report date: 2026-04-30
+- Status: done
+- Status update date: 2026-04-30
+- Scope:
   - Centralize container reference URLs in one config source.
   - Add pre-run connectivity checks for configured image URLs.
   - Add candidate tag suggestions when container pull fails.
 - Notes:
   - Keep `https://depot.galaxyproject.org/singularity/...` style for Singularity pulls.
+- Progress:
+  - 2026-04-30: centralized container references in `nextflow.config` (`params.container_images`) and switched all `module/*.nf` container directives to this map.
+  - 2026-04-30: added pre-run container URL checks in `main.nf` (`container_preflight_check`, `container_preflight_strict`, timeout and suggestion settings).
+  - 2026-04-30: when a Galaxy Depot URL is unreachable, candidate tags are suggested from the configured registry index.
+  - 2026-04-30: added FEAT-002 operation examples to `params.yaml` (warning-only default, strict mode option, and full `container_images` override template).
+  - 2026-04-30: simplified partial override design to use only `container_images` (single-key operation); unspecified image keys keep defaults via config merge.
 
 
 ## INFRASTRUCTURE / CLEANUP
@@ -179,14 +189,14 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 
 ### [FEAT-003] BIOM format output generation
 - Report date: 2026-04-29
-- Status: planned
-- Status update date: N/A
+- Status: done
+- Status update date: 2026-04-30
 - Summary: integrate BIOM_GENERATE and TAXONKIT_LINEAGE processes into main.nf workflow.
 - Scope:
   - Include BIOM_GENERATE call in main.nf after BLAST_ANNOTATE.
   - Collect merged OTU count matrix and BLAST annotation results.
   - Generate BIOM-formatted output with integrated taxonomic and abundance data.
-  - Output to `06_biom/` directory.
+  - Output to `07_biom/` directory.
 - Notes:
   - TAXONKIT_LINEAGE processes BLAST results to extract taxonomy lineage.
   - BIOM_GENERATE combines counts + lineage into HDF5-based BIOM format.
@@ -194,8 +204,8 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 
 ### [FEAT-004] Output folder hierarchy restructuring
 - Report date: 2026-04-29
-- Status: planned
-- Status update date: N/A
+- Status: done
+- Status update date: 2026-04-30
 - Summary: standardize output folder naming and numbering to match pipeline flow.
 - Current structure (irregular):
   ```
@@ -227,8 +237,8 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 
 ### [FEAT-005] SUMMARY_REPORT integration
 - Report date: 2026-04-29
-- Status: planned
-- Status update date: N/A
+- Status: done
+- Status update date: 2026-04-30
 - Summary: integrate SUMMARY_REPORT process into main.nf workflow.
 - Scope:
   - Include SUMMARY_REPORT call after OTU_MERGE and BLAST_ANNOTATE.
