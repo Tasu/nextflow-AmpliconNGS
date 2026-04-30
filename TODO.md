@@ -273,3 +273,36 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 - Notes:
   - Produces two outputs: `summary_phylum_kraken2.tsv` and `summary_phylum_otu.tsv`.
   - Used for contamination and taxonomy verification.
+
+### [FEAT-006] Preflight-check-only execution flag
+
+- Report date: 2026-04-30
+- Status: planned
+- Status update date: 2026-04-30
+- Summary: add a run mode to execute only container preflight checks and exit without running analysis processes.
+- Scope:
+  - Add a dedicated parameter flag (e.g., `preflight_only`) controllable from runtime parameters.
+  - Ensure preflight check output is visible and actionable when running in check-only mode.
+  - Exit successfully when checks pass, and return non-zero when strict check fails.
+
+### [FEAT-007] README content restructuring and Kraken2 note
+
+- Report date: 2026-04-30
+- Status: planned
+- Status update date: 2026-04-30
+- Summary: refine README manually to reduce overlap and clarify Kraken2 role in the workflow.
+- Scope:
+  - Reduce duplicate descriptions between `Features` and `Pipeline Flow` sections.
+  - Add explicit note that Kraken2 classification here is used as practical filtering-oriented classification for read selection.
+  - Perform manual wording review for readability and consistency.
+
+### [FEAT-008] Add figure outputs in SUMMARY_REPORT
+
+- Report date: 2026-04-30
+- Status: planned
+- Status update date: 2026-04-30
+- Summary: extend `SUMMARY_REPORT` to generate plot-based outputs in addition to tabular summaries.
+- Scope:
+  - Add graphical outputs (e.g., phylum-level bar chart/stacked chart) from existing summary tables.
+  - Publish plots to `08_summary_report/` together with TSV outputs.
+  - Record plotting dependency and version information in process versions output.
