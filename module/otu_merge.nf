@@ -16,8 +16,8 @@ process OTU_MERGE {
     container 'https://depot.galaxyproject.org/singularity/biopython:1.79'
 
     input:
-    tuple val(sample_ids), path(consensus_fastas) // List of all consensus files
-    tuple val(sample_ids_count), path(count_files)   // List of read_count_actual.txt files
+    path(consensus_fastas) // Collected list of all consensus files
+    path(count_files)      // Collected per-sample OTU tables (keeps dependency ordering)
 
     output:
     path "integrated_unique_otus.fasta", emit: otu_fasta
@@ -37,7 +37,8 @@ otu_counts = defaultdict(lambda: defaultdict(int))
 unique_seqs = {}
 
 # Iterate through each sample's consensus file
-fastas = "${consensus_fastas}".split()
+fastas = [f for f in "${consensus_fastas}".split() if f]
+samples = sorted({os.path.basename(f).replace("_clustered_consensus.fasta", "") for f in fastas})
 for f in fastas:
     sample_id = os.path.basename(f).replace("_clustered_consensus.fasta", "")
     for record in SeqIO.parse(f, "fasta"):
@@ -62,7 +63,6 @@ if not unique_seqs:
     print("WARNING: No OTU sequences found across all samples. integrated_unique_otus.fasta will be empty.", file=sys.stderr)
 
 # Write OTU count matrix (TSV)
-samples = sorted("${sample_ids}".split())
 with open("otu_count_matrix.tsv", "w") as tsv:
     tsv.write("OTU_ID\\t" + "\\t".join(samples) + "\\n")
     for otu_id in sorted(unique_seqs.values(), key=lambda x: int(x.split('_')[1])):

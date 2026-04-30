@@ -9,6 +9,37 @@
 
 ## BUG FIX
 
+### [BUG-005] OTU_MERGE input cardinality warning
+- Report date: 2026-04-30
+- Status: done
+- Status update date: 2026-04-30
+- Affected files: `main.nf`, `module/otu_merge.nf`
+- Root cause: `main.nf` passed collected file lists to `OTU_MERGE`, but `OTU_MERGE` declared tuple inputs (`tuple val(...), path(...)`), causing input-set cardinality mismatch warnings.
+- Fix:
+  - Updated `OTU_MERGE` inputs to accept collected file lists directly as `path(consensus_fastas)` and `path(count_files)`.
+  - Removed dependency on external `sample_ids` value and derived sample IDs from consensus FASTA filenames inside the Python script.
+- Warning log:
+```text
+WARN: Input tuple does not match input set cardinality declared by process `OTU_MERGE` -- offending value: [/.../barcode31_F02_R01_clustered_consensus.fasta, ...]
+```
+
+### [BUG-004] OTU_COUNT_TABLE publish filename collision
+- Report date: 2026-04-30
+- Status: done
+- Status update date: 2026-04-30
+- Affected files: `module/otu_count.nf`
+- Root cause: `OTU_COUNT_TABLE` published fixed output names (`otu_table_final.tsv`, `otu_table_summary.txt`, `versions_otu_count.yml`) for every sample into one directory (`04_otu_merge`), causing copy collisions and publish warnings.
+- Fix:
+  - Changed per-sample output filenames to include `sample_id`:
+    - `${sample_id}_otu_table_final.tsv`
+    - `${sample_id}_otu_table_summary.txt`
+    - `${sample_id}_versions_otu_count.yml`
+  - Updated process `output:` declarations and script write targets accordingly.
+- Warning log:
+```text
+WARN: Failed to publish file: .../otu_table_final.tsv; to: .../results/04_otu_merge/otu_table_final.tsv [copy] -- See log file for details
+```
+
 ### [BUG-003] GENERATE_PROVENANCE input filename collision
 - Report date: 2026-04-29
 - Status: done

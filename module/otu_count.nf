@@ -18,9 +18,9 @@ process OTU_COUNT_TABLE {
     tuple val(sample_id), path(consensus_fasta), path(read_count_file)
 
     output:
-    path "otu_table_final.tsv",     emit: final_table
-    path "otu_table_summary.txt",   emit: summary
-    path "versions_otu_count.yml",  emit: versions
+    path "${sample_id}_otu_table_final.tsv",     emit: final_table
+    path "${sample_id}_otu_table_summary.txt",   emit: summary
+    path "${sample_id}_versions_otu_count.yml",  emit: versions
 
     script:
     """
@@ -38,19 +38,19 @@ with open("${read_count_file}", 'r') as fh:
     total_reads = int(fh.read().strip())
 
 # Write per-sample OTU table
-with open("otu_table_final.tsv", 'w') as f_out:
+with open(f"{sample_id}_otu_table_final.tsv", 'w') as f_out:
     f_out.write("Sample\\tOTU_Count\\tTotal_Reads\\n")
     f_out.write(f"{sample_id}\\t{otu_count}\\t{total_reads}\\n")
 
 # Write summary
-with open("otu_table_summary.txt", 'w') as summary:
+with open(f"{sample_id}_otu_table_summary.txt", 'w') as summary:
     summary.write("Sample\\tOTU_Count\\tTotal_Reads_Used\\n")
     summary.write(f"{sample_id}\\t{otu_count}\\t{total_reads}\\n")
 
 EOF
 
     # Capture versions
-    echo "Python (Biopython container): \$(python3 --version)" > versions_otu_count.yml
-    echo "Biopython: 1.79" >> versions_otu_count.yml
+    echo "Python (Biopython container): \$(python3 --version)" > ${sample_id}_versions_otu_count.yml
+    echo "Biopython: 1.79" >> ${sample_id}_versions_otu_count.yml
     """
 }
