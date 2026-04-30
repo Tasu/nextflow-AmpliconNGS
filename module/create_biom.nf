@@ -68,7 +68,7 @@ NA_LINEAGE = "NA;NA;NA;NA;NA;NA;NA"
 taxid_to_lineage = {}
 with open("${lineage}", 'r') as fh:
     for line in fh:
-        parts = line.rstrip("\n").split("\t")
+        parts = line.rstrip("\\n").split("\t")
         if len(parts) >= 2 and parts[0].strip():
             taxid_to_lineage[parts[0].strip()] = parts[1].strip()
 
@@ -77,7 +77,7 @@ with open("${lineage}", 'r') as fh:
 otu_blast = {}  # otu_id -> lineage string
 with open("${blast_results}", 'r') as fh:
     for line in fh:
-        cols = line.rstrip("\n").split("\t")
+        cols = line.rstrip("\\n").split("\t")
         if len(cols) < 14:
             continue
         otu_id = cols[0]
@@ -99,13 +99,13 @@ tax_levels = ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species
 out_header = ["OTU_ID"] + tax_levels + samples
 
 with open("merged_otu_report.tsv", 'w') as out:
-    out.write("\t".join(out_header) + "\n")
+    out.write("\t".join(out_header) + "\\n")
     for row in otu_rows:
         otu_id = row[0]
         counts = row[1:]
         lineage_str = otu_blast.get(otu_id, NA_LINEAGE)
         tax_fields = (lineage_str.split(";") + ["NA"] * 7)[:7]
-        out.write("\t".join([otu_id] + tax_fields + counts) + "\n")
+        out.write("\t".join([otu_id] + tax_fields + counts) + "\\n")
 
 # --- 5. Convert to BIOM (JSON-based format v1) ---
 import json, time

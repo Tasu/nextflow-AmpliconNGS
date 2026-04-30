@@ -161,6 +161,7 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
   - Files moved to `trash/` are tracked in git during development.
   - Before converting private → public repo, add `trash/` to `.gitignore`.
   - Add other development artifacts (e.g., `testContainer.sh` if only for dev testing, `.nextflow/` working dirs).
+  - Add `helperScript/runPipeline.ipynb` to `.gitignore` before public release (Linux server specific; requires Jupyter Bash kernel).
 - Files currently in trash/:
   - `nextflowPipelineGenerationLog.md` (superseded by README + TODO)
 - Next step: Add entry to `.gitignore` when approaching public release.
