@@ -33,6 +33,7 @@ Command error:
 ```
 - Progress:
   - 2026-04-30: adjusted `module/summary_report.nf` heredoc Python block to start at column 0 and avoid shell heredoc termination mismatch.
+  - 2026-04-30: fixed embedded Python newline escaping (`\n` -> `\\n`) so generated `.command.sh` does not break string literals at runtime.
 
 ### [BUG-005] OTU_MERGE input cardinality warning
 - Report date: 2026-04-30

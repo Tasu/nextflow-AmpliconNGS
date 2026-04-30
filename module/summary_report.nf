@@ -55,10 +55,10 @@ for f in report_files:
 
 samples = sorted(list(set(samples)))
 with open("summary_phylum_kraken2.tsv", "w") as out:
-    out.write("Phylum\t" + "\t".join(samples) + "\n")
+    out.write("Phylum\t" + "\t".join(samples) + "\\n")
     for phylum in sorted(kraken_phylum_data.keys()):
         row = [phylum] + [str(kraken_phylum_data[phylum][s]) for s in samples]
-        out.write("\t".join(row) + "\n")
+        out.write("\t".join(row) + "\\n")
 
 
 # --- 2. Aggregate OTU Table at Phylum Level using BLAST Annotations ---
@@ -91,10 +91,10 @@ with open("${otu_matrix}", 'r') as mf:
             otu_phylum_summary[phylum][s] += counts[i]
 
 with open("summary_phylum_otu.tsv", "w") as out:
-    out.write("Phylum\t" + "\t".join(otu_samples) + "\n")
+    out.write("Phylum\t" + "\t".join(otu_samples) + "\\n")
     for phylum in sorted(otu_phylum_summary.keys()):
         row = [phylum] + [str(otu_phylum_summary[phylum][s]) for s in otu_samples]
-        out.write("\t".join(row) + "\n")
+        out.write("\t".join(row) + "\\n")
 
 EOF
 
