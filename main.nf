@@ -65,11 +65,40 @@ def suggestContainerTags(String url, List<String> indexEntries, int limit = 5) {
         .take(limit)
 }
 
+def commandExists(String command, int timeoutMs = 3000) {
+    try {
+        def proc = new ProcessBuilder(command, '--version').redirectErrorStream(true).start()
+        def finished = proc.waitFor(timeoutMs as long, java.util.concurrent.TimeUnit.MILLISECONDS)
+        if (!finished) {
+            proc.destroyForcibly()
+            return false
+        }
+        return proc.exitValue() == 0
+    } catch (all) {
+        return false
+    }
+}
+
+def isDockerRefReachable(String dockerRef, int timeoutMs = 8000) {
+    try {
+        def proc = new ProcessBuilder('skopeo', 'inspect', '--no-tags', dockerRef).redirectErrorStream(true).start()
+        def finished = proc.waitFor(timeoutMs as long, java.util.concurrent.TimeUnit.MILLISECONDS)
+        if (!finished) {
+            proc.destroyForcibly()
+            return false
+        }
+        return proc.exitValue() == 0
+    } catch (all) {
+        return false
+    }
+}
+
 def runContainerPreflightChecks(params) {
     def imageMap = (params.container_images ?: [:]) as Map
     def timeoutMs = (params.container_preflight_timeout_ms ?: 8000) as int
     def strictMode = (params.container_preflight_strict ?: false) as boolean
     def suggestTags = (params.container_preflight_suggest_tags ?: true) as boolean
+    def checkDockerRefs = (params.container_preflight_check_docker ?: true) as boolean
     def suggestionLimit = (params.container_suggestion_limit ?: 5) as int
     def indexUrl = (params.container_registry_index_url ?: 'https://depot.galaxyproject.org/singularity/').toString()
 
@@ -79,10 +108,39 @@ def runContainerPreflightChecks(params) {
     }
 
     def uniqueUrls = imageMap.values().findAll { it != null && it.toString().trim() }.collect { it.toString() }.unique()
+    def dockerRefs = uniqueUrls.findAll { it.startsWith('docker://') }
     def depotIndex = suggestTags ? fetchDepotContainerIndex(indexUrl, timeoutMs) : []
     def failures = []
 
+    def skopeoAvailable = true
+    if (checkDockerRefs && dockerRefs) {
+        skopeoAvailable = commandExists('skopeo')
+        if (!skopeoAvailable) {
+            def msg = '[container-preflight] docker:// reference check requires skopeo, but it was not found on PATH.'
+            failures << msg
+            log.warn msg
+        }
+    }
+
     uniqueUrls.each { url ->
+        if (url.startsWith('docker://')) {
+            if (!checkDockerRefs) {
+                log.info "[container-preflight] Skip docker:// check by config: ${url}"
+                return
+            }
+            if (!skopeoAvailable) {
+                return
+            }
+            if (!isDockerRefReachable(url, timeoutMs)) {
+                def msg = "[container-preflight] Unreachable docker reference: ${url}"
+                failures << msg
+                log.warn msg
+            } else {
+                log.info "[container-preflight] OK (docker registry): ${url}"
+            }
+            return
+        }
+
         if (!(url.startsWith('http://') || url.startsWith('https://'))) {
             log.info "[container-preflight] Skip connectivity check for non-HTTP container ref: ${url}"
             return
@@ -110,8 +168,16 @@ def runContainerPreflightChecks(params) {
 
 workflow {
 
-    if (params.container_preflight_check) {
+    def preflightOnly = (params.preflight_only ?: false) as boolean
+    def runPreflight = (params.container_preflight_check ?: false) as boolean || preflightOnly
+
+    if (runPreflight) {
         runContainerPreflightChecks(params)
+    }
+
+    if (preflightOnly) {
+        log.info "[container-preflight] Preflight-only mode enabled. Exiting workflow after checks."
+        return
     }
 
     // --- 2. Input Channel Creation ---

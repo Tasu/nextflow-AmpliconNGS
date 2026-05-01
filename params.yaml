@@ -34,11 +34,19 @@ container_preflight_check: true
 container_preflight_strict: false
 container_preflight_timeout_ms: 8000
 container_preflight_suggest_tags: true
+container_preflight_check_docker: true
 container_registry_index_url: "https://depot.galaxyproject.org/singularity/"
 container_suggestion_limit: 5
+preflight_only: false
 
 # Optional: strict mode for CI / release validation
 # container_preflight_strict: true
+
+# Optional: disable docker:// registry checks (default is true)
+# container_preflight_check_docker: false
+
+# Optional: run only container preflight checks and exit
+# preflight_only: true
 
 # Optional (recommended): partial override only for selected containers
 # Defaults in nextflow.config are kept for unspecified keys.

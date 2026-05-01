@@ -56,9 +56,28 @@ results/
 ## Prerequisites
 
 - Tested with the following software:
-- Nextflow (version 22.04.0)
+- Nextflow (version 22.10.6)
 - Singularity (version 3.8.6)
+- Skopeo (version 1.22.2, required for `docker://` preflight checks)
 - Linux environment with sufficient computational resources (64 cores+, 32GB+ memory)
+
+Example conda environment setup (`nf-env`, based on `version.ipynb`):
+
+```bash
+conda create -n nf-env -c bioconda -c conda-forge \
+    nextflow=22.10.6 \
+    singularity=3.8.6
+
+conda install -n nf-env -c conda-forge skopeo=1.22.2
+```
+
+Environment check commands:
+
+```bash
+conda run -n nf-env nextflow -version
+conda run -n nf-env singularity --version
+conda run -n nf-env skopeo --version
+```
 
 ## Setup
 
@@ -100,12 +119,13 @@ Edit `params.yaml` to set paths and parameters for your environment:
 - All module container URIs are centrally managed in `nextflow.config` via `params.container_images`.
 - To update image tags, edit only this map (module files do not need updates).
 - For simple operation, set only selected keys in `params.yaml` under `container_images` (unspecified keys keep defaults).
-- Optional pre-run checks are available:
-
-  - `container_preflight_check`: enable URL connectivity checks before workflow execution (default: `true`)
-  - `container_preflight_strict`: fail early on unreachable URLs (default: `false`, warn only)
-  - `container_preflight_suggest_tags`: suggest candidate tags from Galaxy Depot index when a URL is unreachable (default: `true`)
-  - `container_registry_index_url`: index used for tag suggestions (default: `https://depot.galaxyproject.org/singularity/`)
+- Optional pre-run checks:
+- `container_preflight_check`: enable URL connectivity checks before workflow execution (default: `true`)
+- `container_preflight_strict`: fail early on unreachable URLs (default: `false`, warn only)
+- `container_preflight_suggest_tags`: suggest candidate tags from Galaxy Depot index when a URL is unreachable (default: `true`)
+- `container_preflight_check_docker`: verify `docker://` references with `skopeo inspect` (default: `true`)
+- `container_registry_index_url`: index used for tag suggestions (default: `https://depot.galaxyproject.org/singularity/`)
+- `preflight_only`: run only preflight checks and exit before analysis starts (default: `false`)
 
 Example (`params.yaml`):
 
@@ -155,6 +175,42 @@ Run the pipeline with Singularity profile:
 ```bash
 nextflow run main.nf -profile singularity -params-file params.yaml
 ```
+
+If you use Nextflow from conda environment `nf-env`, run:
+
+```bash
+conda run -n nf-env nextflow run main.nf -profile singularity -params-file params.yaml
+```
+
+### Preflight-Only Mode
+
+Use this mode to run only container URL preflight checks and exit before analysis tasks start.
+
+```bash
+nextflow run main.nf -profile singularity -params-file params.yaml --preflight_only true
+```
+
+With `nf-env`:
+
+```bash
+conda run -n nf-env nextflow run main.nf -profile singularity -params-file params.yaml --preflight_only true
+```
+
+CI/release validation example (fail on unreachable container URLs):
+
+```bash
+conda run -n nf-env nextflow run main.nf \
+    -profile singularity \
+    -params-file params.yaml \
+    --preflight_only true \
+    --container_preflight_strict true
+```
+
+Expected behavior:
+
+- Preflight logs are printed for each configured container URL.
+- Workflow exits before any analysis process is scheduled.
+- Exit code is non-zero only when strict mode is enabled and checks fail.
 
 ### Recommended Run Layout (per analysis)
 

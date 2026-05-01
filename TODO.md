@@ -277,13 +277,20 @@ echo "SeqKit (AS_POST): $(seqkit version | awk '{print $2}')" > versions_as_post
 ### [FEAT-006] Preflight-check-only execution flag
 
 - Report date: 2026-04-30
-- Status: planned
-- Status update date: 2026-04-30
+- Status: done
+- Status update date: 2026-05-01
 - Summary: add a run mode to execute only container preflight checks and exit without running analysis processes.
 - Scope:
   - Add a dedicated parameter flag (e.g., `preflight_only`) controllable from runtime parameters.
   - Ensure preflight check output is visible and actionable when running in check-only mode.
   - Exit successfully when checks pass, and return non-zero when strict check fails.
+- Progress:
+  - 2026-05-01: added `preflight_only` parameter in `nextflow.config` and documented usage in `params.yaml` and `README.md`.
+  - 2026-05-01: updated `main.nf` to run preflight checks when `preflight_only=true` even if regular preflight toggle is off.
+  - 2026-05-01: added early workflow exit after preflight checks with explicit log message.
+  - 2026-05-01: added dedicated preflight-only execution examples to `README.md` (including `conda run -n nf-env` usage and strict-mode behavior).
+  - 2026-05-01: added `docker://` reference checks in preflight via `skopeo inspect` and introduced toggle `container_preflight_check_docker`.
+  - 2026-05-01: verified in `nf-env` (`skopeo 1.22.2`) that preflight-only mode reports `OK (docker registry)` for `docker://nanozoo/krakentools:1.2--13d5ba5`.
 
 ### [FEAT-007] README content restructuring and Kraken2 note
 
