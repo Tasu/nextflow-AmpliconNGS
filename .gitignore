@@ -5,7 +5,7 @@ helperScript/amplicon_sorter.py
 sif/amplicon_sorter_v2.sif
 
 # ignore test script
-testContainer.sh
+helperScript/testContainer.sh
 version.ipynb
 
 # ignore test samplesheet
@@ -16,3 +16,8 @@ run/
 
 # ignore local Nextflow execution log
 nextflow.log
+.nextflow.log
+.nextflow.log.*
+
+# ignore Nextflow runtime cache/work state
+.nextflow/
