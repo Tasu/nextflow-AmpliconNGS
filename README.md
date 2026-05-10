@@ -3,14 +3,13 @@
 This Nextflow pipeline performs comprehensive analysis of amplicon sequencing data, including preprocessing, demultiplexing, taxonomic classification, OTU clustering, and BLAST annotation. Still under construction.
 
 ## Features
-
+- helperScript to prepare sampleSheet for nextflow pipeline execute.
 - Adapter trimming and quality filtering
-- Demultiplexing based on sample barcodes
-- Taxonomic classification using Kraken2
+- Demultiplexing based on nanopore barcode and index in primer
+- Taxonomic classification using Kraken2 for filtering host sequence.
 - OTU clustering with custom amplicon_sorter
 - BLAST annotation for taxonomic assignment
 - Final result summarization
-- Robust FASTQ input handling when identical FASTQ file names exist in different barcode directories
 
 ## Pipeline Flow and Output Structure
 
@@ -18,7 +17,7 @@ The pipeline runs in the following order:
 
 1. `00_preprocess`: Adapter trimming and basic read cleanup per input `fastq_dir`
 2. `01_demux`: Sample-level demultiplexing and primer-region extraction
-3. `02_kraken_filter`: Kraken2 classification + KrakenTools target read extraction
+3. `02_kraken_filter`: Kraken2 classification + KrakenTools target read extraction/filtration
 4. `03_amplicon_sorter`: Clustering and consensus sequence generation per sample
 5. `04_otu_merge`: Per-sample OTU counting and global OTU merge
 6. `05_blast_annotation`: BLAST annotation of merged unique OTUs
@@ -37,9 +36,6 @@ results/
 ├── 03_amplicon_sorter/
 ├── 04_otu_merge/
 ├── 05_blast_annotation/
-├── 07_biom/
-│   ├── merged_results.biom
-│   └── merged_otu_report.tsv
 ├── 06_final_results/
 │   ├── otu_count_matrix.tsv
 │   ├── sequences/
@@ -47,6 +43,9 @@ results/
 │   │   └── all_samples_consensus.fasta
 │   └── blast/
 │       └── blast_annotation.tsv
+├── 07_biom/
+│   ├── merged_results.biom
+│   └── merged_otu_report.tsv
 ├── 08_summary_report/
 │   ├── summary_phylum_kraken2.tsv
 │   └── summary_phylum_otu.tsv
@@ -67,7 +66,7 @@ Example conda environment setup (`nf-env`, based on `version.ipynb`):
 conda create -n nf-env -c bioconda -c conda-forge \
     nextflow=22.10.6 \
     singularity=3.8.6
-
+# if you want to do full preflight check,
 conda install -n nf-env -c conda-forge skopeo=1.22.2
 ```
 
@@ -88,7 +87,7 @@ git clone https://github.com/Tasu/nextflow-18SAmplicon.git
 cd nextflow-18SAmplicon
 ```
 
-### 2. Build Singularity Container
+### 2. Build required additional Singularity Container
 
 Build the required Singularity container for the amplicon sorter process:
 
@@ -114,7 +113,7 @@ Edit `params.yaml` to set paths and parameters for your environment:
 - `as_container_path`: Path to the built Singularity container (e.g., `/absolute/path/to/sif/amplicon_sorter_v2.sif`)
 - `as_script_path`: Path to the local `amplicon_sorter.py` script
 
-#### Centralized Container Image Catalog
+#### Container Image URLs
 
 - All module container URIs are centrally managed in `nextflow.config` via `params.container_images`.
 - To update image tags, edit only this map (module files do not need updates).
@@ -241,7 +240,7 @@ Notes:
 
 ### Singularity Configuration
 
-If a symlinked or current directory is used for data, ensure it is mounted. The pipeline automatically binds the network-mounted drive `/pigeon:/pigeon` for all Singularity containers. This ensures access to shared resources on your server.
+If a symlinked or current directory is used for data, ensure it is mounted. The pipeline automatically binds the network-mounted drive `/dataDrive:/dataDrive` for all Singularity containers. This ensures access to shared resources on your server.
 
 If you need additional bind mounts, modify `nextflow.config`:
 
