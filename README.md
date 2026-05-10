@@ -1,6 +1,6 @@
-# Nextflow 18S Amplicon Analysis Pipeline
+# Nextflow NGS Amplicon Analysis Pipeline
 
-This Nextflow pipeline performs comprehensive analysis of 18S amplicon sequencing data, including preprocessing, demultiplexing, taxonomic classification, OTU clustering, and BLAST annotation.
+This Nextflow pipeline performs comprehensive analysis of amplicon sequencing data, including preprocessing, demultiplexing, taxonomic classification, OTU clustering, and BLAST annotation. Still under construction.
 
 ## Features
 
