@@ -163,9 +163,13 @@ Use the provided helper script to generate sample sheets:
 
 ```bash
 python helperScript/generate_target_sample_sheet.py
+# custom fastq dir and output path (optional)
+python helperScript/generate_target_sample_sheet.py --fastq-dir demo/fastq --output samplesheet/sampleSheet.target.csv
+# custom template path (optional)
+python helperScript/generate_target_sample_sheet.py --template /path/to/18SV4-9_index.tsv
 ```
 
-This reads index/primer combinations from `template/18SV4-9_index.tsv` and prompts for F/R index selections to generate all combinations for the specified barcode range.
+This reads index/primer combinations from `helperScript/18SV4-9_index.tsv` by default and prompts for F/R index selections to generate all combinations for the specified barcode range.
 
 ## Usage
 
