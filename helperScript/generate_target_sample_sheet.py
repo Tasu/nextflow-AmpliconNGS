@@ -9,19 +9,21 @@ Requirement:
     - pandas (for index sequence conversion)
 
 Usage:
-    python helperScript/generate_target_sample_sheet.py [fastq_directory] [output_csv]
+    python helperScript/generate_target_sample_sheet.py [--fastq-dir FASTQ_DIR] [--output OUTPUT_CSV] [--template TEMPLATE]
 
 Arguments:
-    fastq_directory: Path to FASTQ directory (default: demo/fastq)
-    output_csv: Path to output CSV file (default: samplesheet/sampleSheet.target.csv)
+    --fastq-dir: Path to FASTQ directory (default: demo/fastq)
+    --output: Path to output CSV file (default: samplesheet/sampleSheet.target.csv)
+    --template: Path to template TSV file (default: helperScript/18SV4-9_index.tsv)
 
 This will read the template file, auto-detect barcode range, prompt for index
 combinations, and generate a sample sheet with all combinations.
 
 Examples:
     python helperScript/generate_target_sample_sheet.py
-    python helperScript/generate_target_sample_sheet.py demo/fastq
-    python helperScript/generate_target_sample_sheet.py /path/to/fastq samplesheet/output.csv
+    python helperScript/generate_target_sample_sheet.py --fastq-dir demo/fastq
+    python helperScript/generate_target_sample_sheet.py --fastq-dir /path/to/fastq --output samplesheet/output.csv
+    python helperScript/generate_target_sample_sheet.py --template /path/to/index.tsv
 """
 
 import sys
@@ -29,6 +31,7 @@ import csv
 import os
 import re
 import glob
+import argparse
 from io import StringIO
 from pathlib import Path
 import pandas as pd
@@ -125,14 +128,11 @@ def get_barcode_range_from_user(fastq_dir="demo/fastq"):
         except (ValueError, IndexError):
             print("Invalid input.")
             sys.exit(1)
-def convert_indices_to_sequence(indices):
+def convert_indices_to_sequence(indices, template_file):
     """Convert index names (e.g., F01) to actual sequences."""
     # This is a placeholder function. You would replace this with actual logic
     # to convert index names to sequences based on your specific requirements.
     
-
-    script_dir = Path(__file__).parent
-    template_file = script_dir / "18SV4-9_index.tsv"
     df = pd.read_csv(template_file, sep='\t')
 
     index_sequences = {}
@@ -169,7 +169,7 @@ def convert_indices_to_sequence(indices):
 
 
 
-def generate_data(start_num, end_num, selected_combos, base_row):
+def generate_data(start_num, end_num, selected_combos, base_row, template_file):
     """Generate data rows for selected combinations."""
     rows = []
 
@@ -181,7 +181,10 @@ def generate_data(start_num, end_num, selected_combos, base_row):
         for sample_id, combo in selected_combos.items():
             # sample name as barcode_Fxx_Rxx
             full_sample_name = f"{barcode_name}_{combo['f_idx']}_{combo['r_idx']}"
-            f_index_seq, r_index_seq = convert_indices_to_sequence([combo['f_idx'], combo['r_idx']])
+            f_index_seq, r_index_seq = convert_indices_to_sequence(
+                [combo['f_idx'], combo['r_idx']],
+                template_file
+            )
             row = [
                 full_sample_name,               # sample
                 base_row["path"] + "/" + barcode_name,  # fastq_dir
@@ -195,15 +198,34 @@ def generate_data(start_num, end_num, selected_combos, base_row):
             rows.append(row)
     return rows
 
-def main(fastq_dir=None, output_csv=None):
+def main(fastq_dir=None, output_csv=None, template_file=None):
     # Configuration
     script_dir = Path(__file__).parent
-    template_file = script_dir / "18SV4-9_index.tsv"
+    default_template_file = script_dir / "18SV4-9_index.tsv"
     if fastq_dir is None:
         fastq_dir = "demo/fastq"
     if output_csv is None:
         output_csv = "samplesheet/sampleSheet.target.csv"
+    if template_file is None:
+        template_file = default_template_file
+    else:
+        template_file = Path(template_file)
     delimiter = ","  # CSV delimiter
+
+    # --- Preflight checks (before any interactive prompts) ---
+    if not template_file.exists():
+        print(f"Error: Template file '{template_file}' not found.", file=sys.stderr)
+        sys.exit(1)
+
+    if output_csv != "-":
+        output_path = Path(output_csv)
+        if not output_path.parent.exists():
+            print(
+                f"Error: Output directory '{output_path.parent}' does not exist."
+                " Please create it first.",
+                file=sys.stderr
+            )
+            sys.exit(1)
 
     # Get barcode range from user (with auto-detection)
     start_num, end_num = get_barcode_range_from_user(fastq_dir)
@@ -236,13 +258,13 @@ def main(fastq_dir=None, output_csv=None):
     print(f"Available R indices: {', '.join(r_indices)}")
 
     # Get user selection
-    print("\nEnter F indices to use (comma-separated, e.g., F01,F02):")
+    print(f"\nEnter F indices to use (comma-separated, e.g., F01,F02) [default: all ({', '.join(f_indices)})]:")
     f_input = input().strip()
-    selected_f = [x.strip() for x in f_input.split(',') if x.strip()]
+    selected_f = [x.strip() for x in f_input.split(',') if x.strip()] if f_input else f_indices
 
-    print("Enter R indices to use (comma-separated, e.g., R01,R05):")
+    print(f"Enter R indices to use (comma-separated, e.g., R01,R05) [default: all ({', '.join(r_indices)})]:") 
     r_input = input().strip()
-    selected_r = [x.strip() for x in r_input.split(',') if x.strip()]
+    selected_r = [x.strip() for x in r_input.split(',') if x.strip()] if r_input else r_indices
 
     # Filter combinations
     selected_combos = select_combinations(combinations, selected_f, selected_r)
@@ -256,7 +278,7 @@ def main(fastq_dir=None, output_csv=None):
         print(f"  {sample_id}: {combo['f_idx']}, {combo['r_idx']}")
 
     # Generate data
-    all_data = generate_data(start_num, end_num, selected_combos, base_row)
+    all_data = generate_data(start_num, end_num, selected_combos, base_row, template_file)
 
     # Create output file
     try:
@@ -279,6 +301,26 @@ def main(fastq_dir=None, output_csv=None):
         print(f"Error: {e}", file=sys.stderr)
 
 if __name__ == "__main__":
-    fastq_dir = sys.argv[1] if len(sys.argv) > 1 else "demo/fastq"
-    output_csv = sys.argv[2] if len(sys.argv) > 2 else "samplesheet/sampleSheet.target.csv"
-    main(fastq_dir, output_csv)
+    parser = argparse.ArgumentParser(
+        description="Generate target sample sheet CSV from index/primer template"
+    )
+    parser.add_argument(
+        "--fastq-dir",
+        dest="fastq_directory",
+        default="demo/fastq",
+        help="Path to FASTQ directory (default: demo/fastq)"
+    )
+    parser.add_argument(
+        "--output",
+        dest="output_csv",
+        default="samplesheet/sampleSheet.target.csv",
+        help="Path to output CSV file (default: samplesheet/sampleSheet.target.csv)"
+    )
+    parser.add_argument(
+        "--template",
+        default=None,
+        help="Path to template TSV file (default: helperScript/18SV4-9_index.tsv)"
+    )
+
+    args = parser.parse_args()
+    main(args.fastq_directory, args.output_csv, args.template)
