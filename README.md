@@ -260,4 +260,8 @@ singularity {
 
 ## License
 
-To be determined - full permission for reuse and redistribution with proper citation.
+This repository is licensed under the MIT License. See the `LICENSE` file.
+
+Third-party tools and databases used by this workflow are licensed separately by their original authors. Their terms still apply when you run this pipeline, including when tools are executed via Singularity/Apptainer containers.
+
+See `THIRD_PARTY_LICENSES.md` for usage and redistribution notes.
