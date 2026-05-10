@@ -6,10 +6,14 @@ sif/amplicon_sorter_v2.sif
 
 # ignore test script
 helperScript/testContainer.sh
+helperScript/runPipeline.ipynb
 version.ipynb
 
 # ignore test samplesheet
 samplesheet/*.csv
+
+# ignore development trash directory
+trash/
 
 # ignore run directory
 run/
