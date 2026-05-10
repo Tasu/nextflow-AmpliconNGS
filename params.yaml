@@ -1,35 +1,42 @@
-#################for onpremise server, 128cpu, 64GB memeory, DB available#################
+# Nextflow NGS Amplicon Analysis Pipeline - Configuration Template
+# 
+# Configure this file with paths specific to your environment before running the pipeline.
+# Paths can be absolute or relative to the working directory where nextflow is executed.
+
 # --- Input/Output Paths ---
-# this path is the relative path from the directory which nextflow command is executed.
 sample_sheet: "samplesheet/samplesheet_test_generated.csv"
 outdir: "results"
 
-# --- Database Paths ---
-kraken2_db: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/kraken2db/kraken2custom18S"
-blast_db_dir: "/usr/local/db/blast/ncbi/nt"
-tax_db_dir: "/pigeon/tsugi/work/genome/ncbi-blast/taxdata/taxdump_2023"
+# --- Database Paths (REQUIRED) ---
+# Update these to point to your local or remote databases
+kraken2_db: "/path/to/kraken2_db"
+blast_db_dir: "/path/to/blast_db"
+tax_db_dir: "/path/to/taxonomy_db"
 
-# --- Resource Limits (Max allowed on current server) ---
+# --- Resource Limits ---
+# Adjust to match your system capabilities
 max_cpus: 64
 max_memory: "256.GB"
 max_time: "24.h"
 
 # --- Analysis Parameters ---
-# 7711 for chordata
+# target_taxid: taxonomy ID for filtering (e.g., 7711 for Chordata)
 target_taxid: "7711"
 filter_action: "remove"
 max_reads: 10000
 blast_db_name: "nt"
 blast_type: "blastn"
 
-# Container paths (Local Singularity Images)
-as_container_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/sif/amplicon_sorter_v2.sif"
+# --- Container and Script Paths (REQUIRED) ---
+# Update to match your setup after building the Singularity container
+# as_container_path can be absolute or relative path to the built .sif container
+as_container_path: "sif/amplicon_sorter_v2.sif"
 
-# Scripts and other local files
-as_script_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/helperScript/amplicon_sorter.py"
+# as_script_path should point to the amplicon_sorter.py script location
+as_script_path: "helperScript/amplicon_sorter.py"
 
-# --- FEAT-002: Container maintenance operation examples ---
-# Keep default behavior (check enabled, warning-only on failure)
+# --- Container Maintenance Configuration ---
+# Preflight checks for container image availability
 container_preflight_check: true
 container_preflight_strict: false
 container_preflight_timeout_ms: 8000
@@ -39,50 +46,9 @@ container_registry_index_url: "https://depot.galaxyproject.org/singularity/"
 container_suggestion_limit: 5
 preflight_only: false
 
-# Optional: strict mode for CI / release validation
-# container_preflight_strict: true
-
-# Optional: disable docker:// registry checks (default is true)
-# container_preflight_check_docker: false
-
-# Optional: run only container preflight checks and exit
-# preflight_only: true
-
-# Optional (recommended): partial override only for selected containers
-# Defaults in nextflow.config are kept for unspecified keys.
+# --- Optional: Container Image Overrides ---
+# Uncomment and modify to override default container URLs from nextflow.config
 # container_images:
 #   blast: "https://depot.galaxyproject.org/singularity/blast:2.16.0--h66d330f_4"
 #   biopython: "https://depot.galaxyproject.org/singularity/biopython:1.79"
-
-# Optional: add or replace any other specific image key
-# container_images:
 #   taxonkit: "https://depot.galaxyproject.org/singularity/taxonkit:0.18.0--h9ee0642_0"
-
-##########################for github codespaces 2cpu and 4GB memory
-# --- Input/Output Paths ---
-sample_sheet: "samplesheet/samplesheet_test_generated.csv"
-outdir: "results"
-
-# --- Database Paths ---
-kraken2_db: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/kraken2db/kraken2custom18S"
-blast_db_dir: "/usr/local/db/blast/ncbi/nt"
-tax_db_dir: "/pigeon/tsugi/work/genome/ncbi-blast/taxdata/taxdump_2023"
-
-# --- Resource Limits (Max allowed on current server) ---
-max_cpus: 64
-max_memory: "256.GB"
-max_time: "24.h"
-
-# --- Analysis Parameters ---
-# 7711 for chordata
-target_taxid: "7711"
-filter_action: "remove"
-max_reads: 10000
-blast_db_name: "nt"
-blast_type: "blastn"
-
-# Container paths (Local Singularity Images)
-as_container_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/sif/amplicon_sorter_v2.sif"
-
-# Scripts and other local files
-as_script_path: "/pigeon/tsugi/work/blast_WhatsInSeq/16S_18S_metagenome_test/nanopore/analysis_18S/nextflow/nextflow-18SAmplicon/helperScript/amplicon_sorter.py"

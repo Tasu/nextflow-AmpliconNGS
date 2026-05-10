@@ -15,6 +15,9 @@ samplesheet/*.csv
 # ignore development trash directory
 trash/
 
+# ignore demo test data (include only template structure)
+demo/fastq/*/
+
 # ignore run directory
 run/
 
