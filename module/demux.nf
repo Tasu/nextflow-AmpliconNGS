@@ -7,10 +7,10 @@ process CUTADAPT_MARK {
     container "${params.container_images.cutadapt}"
 
     input:
-    tuple val(sample_id), path(fastq), val(min_len), val(max_len), val(f_idx), val(f_prm), val(r_idx), val(r_prm)
+    tuple val(sample_id), path(fastq), val(min_len), val(max_len), val(f_prm), val(r_prm)
 
     output:
-    tuple val(sample_id), path("marked.fastq"), val(min_len), val(max_len), val(f_idx), val(r_idx), emit: marked_data
+    tuple val(sample_id), path("marked.fastq"), val(min_len), val(max_len), emit: marked_data
     path "versions_cutadapt.yml", emit: versions
 
     script:
