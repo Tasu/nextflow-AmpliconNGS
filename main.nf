@@ -236,8 +236,8 @@ workflow {
     // [E] Extract sequences between primers with Biopython
     ch_biopython_input = CUTADAPT_MARK.out.marked_data
         .join(ch_sample_sheet.map { m -> [m.sample_id, m.f_idx, m.r_idx] })
-        .map { sample_id, marked_fastq, min_len, max_len, f_idx, r_idx ->
-            [ sample_id, marked_fastq, min_len, max_len, f_idx, r_idx ]
+        .map { sample_id, fwd_marked_fastq, rev_marked_fastq, min_len, max_len, f_idx, r_idx ->
+            [ sample_id, fwd_marked_fastq, rev_marked_fastq, min_len, max_len, f_idx, r_idx ]
         }
 
     BIOPYTHON_EXTRACT(ch_biopython_input)
