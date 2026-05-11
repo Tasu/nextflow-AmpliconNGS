@@ -227,14 +227,20 @@ workflow {
         .map { meta -> [ meta.fastq_dir.split('/')[-1], meta ] }
         .combine(SEQKIT_CLEAN.out.chopped_fastq, by: 0)
         .map { dir_id, meta, fastq ->
-            [ meta.sample_id, fastq, meta.min_len, meta.max_len, meta.f_idx, meta.f_prm, meta.r_idx, meta.r_prm ]
+            [ meta.sample_id, fastq, meta.min_len, meta.max_len, meta.f_prm, meta.r_prm ]
         }
 
     // [D] High-precision Demultiplexing - Cutadapt marking
     CUTADAPT_MARK(ch_demux_input)
 
     // [E] Extract sequences between primers with Biopython
-    BIOPYTHON_EXTRACT(CUTADAPT_MARK.out.marked_data)
+    ch_biopython_input = CUTADAPT_MARK.out.marked_data
+        .join(ch_sample_sheet.map { m -> [m.sample_id, m.f_idx, m.r_idx] })
+        .map { sample_id, marked_fastq, min_len, max_len, f_idx, r_idx ->
+            [ sample_id, marked_fastq, min_len, max_len, f_idx, r_idx ]
+        }
+
+    BIOPYTHON_EXTRACT(ch_biopython_input)
 
     // [F] Host Removal / Target Extraction (Kraken2 Filter Split)
     KRAKEN2_CLASSIFY(
